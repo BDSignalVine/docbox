@@ -1,431 +1,130 @@
-## Wobble
+## Using the API
 
-This is our high-quality wobbles API. You can use this API to request
-and remove different wobbles at a low wibble price.
+Using our API is as easy as following the next 4 steps.
 
-### List wobbles
+### Create a Signature
 
-Lists all wobbles for a particular account.
+Create a string from components of the HTTP request, and encrypt it using your application secret. The token acts as the shared key, which is then used by the api to decrypt and verify the contents of the signature.
 
-```endpoint
-GET /wobbles/v1/{username} wobbles:read
-```
+Lowercase & concatenate the following fields together, using \n as a separator.
+*  token
+*  HTTP verb
+*  request path (no server or querystring data)
+*  request body
+*  timestamp (ISO80601)
 
-#### Example request
+Use your secret and token to encrypt the string using SHA2 - 256bit encryption.
 
-```curl
-$ curl https://wobble.biz/wobbles/v1/{username}
-```
 
-```bash
-$ wbl wobbles list
-```
+### Custom headers
 
-```javascript
-client.listWobbles(function(err, wobbles) {
-  console.log(wobbles);
-});
-```
+The API looks for 2 particular headers on all inbound requests: 
+*  The timestamp you encoded into the signature
+*  The token and signature themselves. The signature should be sent as a BASE64 string.
 
-```python
-wobbles.list()
-```
 
-#### Example response
-
-```json
-[
-  {
-    "owner": "{username}",
-    "id": "{wobble_id}",
-    "created": "{timestamp}",
-    "modified": "{timestamp}"
-  },
-  {
-    "owner": "{username}",
-    "id": "{wobble_id}",
-    "created": "{timestamp}",
-    "modified": "{timestamp}"
-  }
-]
-```
-
-### Create wobble
-
-Creates a new, empty wobble.
 
 ```endpoint
-POST /wobbles/v1/{username}
+POST https://api.signalvine.com/Foo/Bar?waz=xax
 ```
 
-#### Example request
+#### POST request
 
 ```curl
-curl -X POST https://wobble.biz/wobbles/v1/{username}
+Host: https://app.example.com
+Content-Type: application/json
+Content-Length: 10
+SignalVine-Date: 2014-03-11T05:03:08.619Z
+Authorization: SignalVine 123456:7LWA3dHvkOC87h5uRVBofIehmeGRxZJ0DFgWra2E6rs
+{woo: war}
+          
+```
+#### String to Sign
+
+```curl
+123456
+post
+/foo/bar
+{woo: war}
+2014-03-11t05:03:08.619z
 ```
 
-```bash
-$ wbl wobbles create
-```
-
-```javascript
-client.createWobble({
-  name: 'example',
-  description: 'An example wobble'
-}, function(err, wobble) {
-  console.log(wobble);
-});
-```
-
-```python
-response = wobbles.create(
-  name='example', description='An example wobble')
-```
-
-#### Example request body
-
-```json
-{
-  "name": "foo",
-  "description": "bar"
-}
-```
-
-Property | Description
----|---
-`name` | (optional) the name of the wobble
-`description` | (optional) a description of the wobble
-
-#### Example response
-
-```json
-{
-  "owner": "{username}",
-  "id": "{wobble_id}",
-  "name": null,
-  "description": null,
-  "created": "{timestamp}",
-  "modified": "{timestamp}"
-}
-```
-
-### Retrieve a wobble
-
-Returns a single wobble.
+#### GET Request 
 
 ```endpoint
-GET /wobbles/v1/{username}/{wobble_id}
+GET https://api.signalvine.com/Foo/Bar?waz=xax
 ```
-
-Retrieve information about an existing wobble.
-
-#### Example request
+#### GET Request 
 
 ```curl
-curl https://wobble.biz/wobbles/v1/{username}/{wobble_id}
+Host: https://app.example.com
+Content-Type: application/json
+Content-Length: 0
+SignalVine-Date: 2014-03-11T05:03:08.619Z
+Authorization: SignalVine 123456:7LWA3dHvkOC87h5uRVBofIehmeGRxZJ0DFgWra2E6rs
 ```
 
-```bash
-$ wbl wobble read-wobble wobble-id
+#### String to Sign
+
+```curl
+123456
+get
+/foo/bar
+
+2014-03-11t05:03:08.619z
 ```
 
-```python
-attrs = wobbles.read_wobble(wobble_id).json()
-```
+### API Functions
 
-```javascript
-client.readWobble('wobble-id',
-  function(err, wobble) {
-    console.log(wobble);
-  });
-```
+There are 3 primary entities available via the API: program, participant and message. 
 
-#### Example response
+Further, there are different types of messages: sent, received, scheduled and template.
 
-```json
-{
-  "owner": "{username}",
-  "id": "{wobble_id}",
-  "created": "{timestamp}",
-  "modified": "{timestamp}"
-}
-```
-
-### Update a wobble
-
-Updates the properties of a particular wobble.
+#### GET Request for program
 
 ```endpoint
-PATCH /wobbles/v1/{username}/{wobble_id}
+GET /v1/accounts/:accountId/programs
 ```
 
-#### Example request
-
-```curl
-curl --request PATCH https://wobble.biz/wobbles/v1/{username}/{wobble_id} \
-  -d @data.json
-```
-
-```python
-resp = wobbles.update_wobble(
-  wobble_id,
-  name='updated example',
-  description='An updated example wobble'
-  ).json()
-```
-
-```bash
-$ wbl wobble update-wobble wobble-id
-```
-
-```javascript
-var options = { name: 'foo' };
-client.updateWobble('wobble-id', options, function(err, wobble) {
-  console.log(wobble);
-});
-```
-
-#### Example request body
-
-```json
-{
-  "name": "foo",
-  "description": "bar"
-}
-```
-
-Property | Description
----|---
-`name` | (optional) the name of the wobble
-`description` | (optional) a description of the wobble
-
-#### Example response
-
-```json
-{
-  "owner": "{username}",
-  "id": "{wobble_id}",
-  "name": "foo",
-  "description": "bar",
-  "created": "{timestamp}",
-  "modified": "{timestamp}"
-}
-```
-
-### Delete a wobble
-
-Deletes a wobble, including all wibbles it contains.
+#### GET Request for participants
 
 ```endpoint
-DELETE /wobbles/v1/{username}/{wobble_id}
+GET /v1/accounts/:accountId/participants
 ```
 
-#### Example request
 
-```curl
-curl -X DELETE https://wobble.biz/wobbles/v1/{username}/{wobble_id}
-```
-
-```bash
-$ wbl wobble delete-wobble wobble-id
-```
-
-```python
-resp = wobbles.delete_wobble(wobble_id)
-```
-
-```javascript
-client.deleteWobble('wobble-id', function(err) {
-  if (!err) console.log('deleted!');
-});
-```
-
-#### Example response
-
-> HTTP 204
-
-### List wibbles
-
-List all the wibbles in a wobble. The response body will be a
-WobbleCollection.
+#### GET Request for messages
 
 ```endpoint
-GET /wobbles/v1/{username}/{wobble_id}/wibbles
+GET /v1/accounts/:accountId/messages
 ```
 
-#### Example request
+### Get specific entity
 
-```curl
-curl https://wobble.biz/wobbles/v1/{username}/{wobble_id}/wibbles
-```
+To query for entities for a given program use the program endpoints
 
-```bash
-$ wbl wobble list-wibbles wobble-id
-```
-
-```python
-collection = wobbles.list_wibbles(wobble_id).json()
-```
-
-```javascript
-client.listWobbles('wobble-id', {}, function(err, collection) {
-  console.log(collection);
-});
-```
-
-#### Example response
-
-```json
-{
-  "type": "Wobble",
-  "wibbles": [
-    {
-      "id": "{wibble_id}",
-      "type": "Wobble",
-      "properties": {
-        "prop0": "value0"
-      }
-    },
-    {
-      "id": "{wibble_id}",
-      "type": "Wobble",
-      "properties": {
-        "prop0": "value0"
-      }
-    }
-  ]
-}
-```
-
-### Insert or update a wibble
-
-Inserts or updates a wibble in a wobble. If there's already a wibble
-with the given ID in the wobble, it will be replaced. If there isn't
-a wibble with that ID, a new wibble is created.
+#### GET Request for Participants 
 
 ```endpoint
-PUT /wobbles/v1/{username}/{wobble_id}/wibbles/{wibble_id}
+GET /v1/programs/:programId/participants
 ```
 
-#### Example request
-
-```curl
-curl https://wobble.biz/wobbles/v1/{username}/{wobble_id}/wibbles/{wibble_id} \
-  -X PUT \
-  -d @file.geojson
-```
-
-```bash
-$ wbl wobble put-wibble wobble-id wibble-id 'geojson-wibble'
-```
-
-```javascript
-var wibble = {
-  "type": "Wobble",
-  "properties": { "name": "Null Island" }
-};
-client.insertWobble(wibble, 'wobble-id', function(err, wibble) {
-  console.log(wibble);
-});
-```
-
-#### Example request body
-
-```json
-{
-  "id": "{wibble_id}",
-  "type": "Wobble",
-  "properties": {
-    "prop0": "value0"
-  }
-}
-```
-
-Property | Description
---- | ---
-`id` | the id of an existing wibble in the wobble
-
-#### Example response
-
-```json
-{
-  "id": "{wibble_id}",
-  "type": "Wobble",
-  "properties": {
-    "prop0": "value0"
-  }
-}
-```
-
-### Retrieve a wibble
-
-Retrieves a wibble in a wobble.
+#### GET Request for Messages 
 
 ```endpoint
-GET /wobbles/v1/{username}/{wobble_id}/wibbles/{wibble_id}
+GET /v1/programs/:programId/messages
 ```
 
-#### Example request
+### Get specific message
 
-```curl
-curl https://wobble.biz/wobbles/v1/{username}/{wobble_id}/wibbles/{wibble_id}
-```
+Find messages for a given participant
 
-```bash
-$ wbl wobble read-wibble wobble-id wibble-id
-```
-
-```javascript
-client.readWobble('wibble-id', 'wobble-id',
-  function(err, wibble) {
-    console.log(wibble);
-  });
-```
-
-```python
-wibble = wobbles.read_wibble(wobble_id, '2').json()
-```
-
-#### Example response
-
-```json
-{
-  "id": "{wibble_id}",
-  "type": "Wobble",
-  "properties": {
-    "prop0": "value0"
-  }
-}
-```
-
-### Delete a wibble
-
-Removes a wibble from a wobble.
+#### GET Request for Participants 
 
 ```endpoint
-DELETE /wobbles/v1/{username}/{wobble_id}/wibbles/{wibble_id}
+GET /v1/participants/:participantId/messages
 ```
 
-#### Example request
+You can retrieve the different types of messages by specifying the `message_type` in the query string: /v1/participants/:participantId/messages?message_type=received
 
-```javascript
-client.deleteWobble('wibble-id', 'wobble-id', function(err, wibble) {
-  if (!err) console.log('deleted!');
-});
-```
-
-```curl
-curl -X DELETE https://wobble.biz/wobbles/v1/{username}/{wobble_id}/wibbles/{wibble_id}
-```
-
-```python
-resp = wobbles.delete_wibble(wobble_id, wibble_id)
-```
-
-```bash
-$ wbl wobble delete-wibble wobble-id wibble-id
-```
-
-#### Example response
-
-> HTTP 204
+Note : Different representations are available for each resource, you can append the type parameter to any route to select either the simple or full representation - i.e. /v1/programs/:programId/participants?type=full
