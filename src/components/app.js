@@ -12,27 +12,18 @@ let slugger = new GithubSlugger();
 let slug = title => { slugger.reset(); return slugger.slug(title); };
 
 let languageOptions = [
-  { title: 'cURL',
-    short: 'cURL',
-    value: 'curl' },
+  { title: 'Scala',
+    short: 'scala',
+    value: 'scala' },
+  { title: 'C#',
+    short: 'c-sharp',
+    value: 'c-sharp' },
+  { title: 'Ruby',
+    short: 'ruby',
+    value: 'ruby' },
   { title: 'CLI',
-    short: 'cli',
-    value: 'cli' },
-  { title: 'Python',
-    short: 'Python',
-    value: 'python' },
-  { title: 'JavaScript',
-    short: 'JS',
-    value: 'javascript' },
-  { title: 'Java',
-    short: 'Java',
-    value: 'java' },
-  { title: 'Objective-C',
-    short: 'ObjC',
-    value: 'objc' },
-  { title: 'Swift',
-    short: 'Swift',
-    value: 'swift' }
+    short: 'bash',
+    value: 'bash' }
 ];
 
 let defaultLanguage = languageOptions[0];

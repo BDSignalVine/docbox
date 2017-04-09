@@ -10,14 +10,12 @@ import objectivec from 'highlight.js/lib/languages/objectivec';
 import swift from 'highlight.js/lib/languages/swift';
 import bash from 'highlight.js/lib/languages/bash';
 
-hljs.registerLanguage('python', python);
-hljs.registerLanguage('xml', xml);
-hljs.registerLanguage('javascript', javascript);
-hljs.registerLanguage('json', json);
-hljs.registerLanguage('objc', objectivec);
-hljs.registerLanguage('swift', swift);
-hljs.registerLanguage('java', java);
+hljs.registerLanguage('scala', xml);
+hljs.registerLanguage('c-sharp', javascript);
+hljs.registerLanguage('ruby', swift);
 hljs.registerLanguage('bash', bash);
+hljs.registerLanguage('json', javascript);
+
 
 /**
  * Adapted from remark-highlight.js
