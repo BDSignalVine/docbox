@@ -10,7 +10,425 @@
     <link href='css/railscasts.css' rel='stylesheet' />
   </head>
   <body>
-    <!--START--><div id='app'></div><!--STOP-->
+    <!--START--><div id='app'><div class="container unlimiter" data-reactroot="" data-reactid="1" data-react-checksum="180221970"><div class="fixed-top fixed-right space-left16" data-reactid="2"><div class="fill-light col6 pin-right" data-reactid="3"></div></div><div class="space-top5 scroll-styled overflow-auto pad1 width16 sidebar fixed-left fill-dark dark" data-reactid="4"><div class="pad0x small" data-reactid="5"><div class="small pad0x quiet space-top1" data-reactid="6">Introduction</div><a href="#introduction-1" class="line-height15 pad0x pad00y quiet block " data-reactid="7">Introduction</a><div class="small pad0x quiet space-top1" data-reactid="8">Example</div><a href="#using-the-api" class="line-height15 pad0x pad00y quiet block " data-reactid="9">Using the API</a><a href="#api-functions" class="line-height15 pad0x pad00y quiet block " data-reactid="10">API Functions</a><a href="#programs" class="line-height15 pad0x pad00y quiet block " data-reactid="11">Programs</a><a href="#participants" class="line-height15 pad0x pad00y quiet block " data-reactid="12">Participants</a><a href="#messages" class="line-height15 pad0x pad00y quiet block " data-reactid="13">Messages</a><a href="#notes" class="line-height15 pad0x pad00y quiet block " data-reactid="14">Notes</a></div></div><div class="space-left16" data-reactid="15"><div class="" data-reactid="16"><div class="clearfix" data-reactid="17"><div data-title="Introduction" class="keyline-top section contain clearfix " data-reactid="18"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="19"><h2 id="introduction-1">Introduction</h2>
+<p>The Signal Vine API enables clients to integrate their systems/applications with Signal Vine. The API provides access to your data via HTTPS. </p>
+<p>We follow a RESTful approach, using standard HTTP verbs and HATEOAS links. To make resource requests, you need to create a token and a secret. They are used to sign requests so they can be authorized and authenticated. </p>
+<p>Contact support to sign up for the beta program and retrieve a token and secret for use with your account.</p>
+</div></div><div data-title="Using the API" class="keyline-top section contain clearfix " data-reactid="20"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="21"><h2 id="using-the-api">Using the API</h2>
+<p>Using our API is as easy as following the next 4 steps.</p>
+</div></div><div data-title="Create a Signature" class="keyline-top section contain clearfix " data-reactid="22"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="23"><h3 id="create-a-signature">Create a Signature</h3>
+<p>Create a string from components of the HTTP request, and encrypt it using your application secret. The token acts as the shared key, which is then used by the api to decrypt and verify the contents of the signature.</p>
+<p>Lowercase &#x26; concatenate the following fields together, using \n as a separator.</p>
+<ul>
+<li>token</li>
+<li>HTTP verb</li>
+<li>request path (no server or querystring data)</li>
+<li>request body</li>
+<li>timestamp (ISO80601)</li>
+</ul>
+<p>Use your secret and token to encrypt the string using SHA2 - 256bit encryption.</p>
+<p>The token and secret for use with your account is available in the portal.  After logging into <a href="https://v3.signalvine.com">https://v3.signalvine.com</a>, click on <code>Tools</code> at the top of the screen, and then click <code>API</code> from the left hand navigation.  </p>
+<p>You can view the secret, by clicking the flashlight icon.  </p>
+</div><div class="space-bottom4 col6 pad2 prose clip fill-light space-top5" data-reactid="24"><pre class='hljs'>package theseus.services
+
+import javax.crypto.spec.SecretKeySpec
+import javax.crypto.Mac
+
+object RequestSignatureService {
+  private def normalize(clientId: String, method: String, path:String, timeStamp: String, body: String): String = {
+    if (clientId.isEmpty() || method.isEmpty() || path.isEmpty() || timeStamp.isEmpty()) throw new SignatureException("Invalid signature fields")
+
+    try {
+      val dt = DateTime.unsafeParse(timeStamp)
+    } catch {
+      case e: Exception =&gt; throw new SignatureException("Could not parse timestamp")
+    }
+
+    clientId.toLowerCase() ++ "\n" ++ method.toLowerCase() ++ "\n" ++ path.toLowerCase() ++ "\n" ++ body.toLowerCase() ++ "\n" ++ timeStamp.toLowerCase() 
+  }
+
+  def sign(clientId: String, secret: Array[Byte], method: String, path: String, timeStamp: String, body: String = ""): String = {
+    val normalized = RequestSignatureService.normalize(clientId, method, path, timeStamp, body)
+    val sec = new SecretKeySpec(secret, "HmacSHA256")
+
+    var mac = Mac.getInstance("HmacSHA256")
+    mac.init(sec)
+    
+    var data = mac.doFinal(normalized.getBytes("utf-8"))
+  
+    return new sun.misc.BASE64Encoder().encode(data)
+  }
+}</pre>
+</div></div><div data-title="Custom headers" class="keyline-top section contain clearfix " data-reactid="25"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="26"><h3 id="custom-headers">Custom headers</h3>
+<p>The API looks for 2 particular headers on all inbound requests: </p>
+<ul>
+<li>The timestamp you encoded into the signature</li>
+<li>The token and signature themselves. The signature should be sent as a BASE64 string.</li>
+</ul>
+</div><div class="space-bottom4 col6 pad2 prose clip fill-light space-top5" data-reactid="27"><div class='endpoint dark fill-dark round '>
+      <div class='round-left pad0y pad1x fill-lighten0 code small endpoint-method'>POST</div>
+      <div class='pad0 code small endpoint-url'>https://api.signalvine.com/Foo/Bar?waz=xax</div>
+    </div>
+<h4 id="post-request">POST request</h4>
+<h4 id="string-to-sign">String to Sign</h4>
+<h4 id="get-request">GET Request</h4>
+<div class='endpoint dark fill-dark round '>
+      <div class='round-left pad0y pad1x fill-lighten0 code small endpoint-method'>GET</div>
+      <div class='pad0 code small endpoint-url'>https://api.signalvine.com/Foo/Bar?waz=xax</div>
+    </div>
+<h4 id="get-request-1">GET Request</h4>
+<h4 id="string-to-sign-1">String to Sign</h4>
+</div></div><div data-title="API Functions" class="keyline-top section contain clearfix " data-reactid="28"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="29"><h2 id="api-functions">API Functions</h2>
+<p>There are 3 primary entities available via the API: program, participant and message.
+Further, there are different types of messages: sent, received, scheduled and template.</p>
+</div></div><div data-title="Programs" class="keyline-top section contain clearfix " data-reactid="30"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="31"><h2 id="programs">Programs</h2>
+</div></div><div data-title="List Programs" class="keyline-top section contain clearfix " data-reactid="32"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="33"><h3 id="list-programs">List Programs</h3>
+<p>With an account ID, you can request your programs like this</p>
+</div><div class="space-bottom4 col6 pad2 prose clip fill-light space-top5" data-reactid="34"><div class='endpoint dark fill-dark round '>
+      <div class='round-left pad0y pad1x fill-lighten0 code small endpoint-method'>GET</div>
+      <div class='pad0 code small endpoint-url'>/v1/accounts/:accountId/programs</div>
+    </div>
+<h4 id="example-response">Example Response</h4>
+<pre class='hljs'>{
+  <span class="hljs-string">"items"</span>: [
+    {
+      <span class="hljs-string">"id"</span>: <span class="hljs-string">"f3be52fa-e78a-4080-85e7-1487fb99c583"</span>,
+      <span class="hljs-string">"accountId"</span>: <span class="hljs-string">"aa32b0bd-2c1b-480a-94d7-cff05fcc53b0"</span>,
+      <span class="hljs-string">"name"</span>: <span class="hljs-string">"TXT-4-SUCCESS"</span>,
+      <span class="hljs-string">"active"</span>: <span class="hljs-literal">true</span>
+    },
+    {
+      <span class="hljs-string">"id"</span>: <span class="hljs-string">"9c93c9ab-b58c-49d8-a8f7-4b4a26707c3d"</span>,
+      <span class="hljs-string">"accountId"</span>: <span class="hljs-string">"aa32b0bd-2c1b-480a-94d7-cff05fcc53b0"</span>,
+      <span class="hljs-string">"name"</span>: <span class="hljs-string">"HS_Life"</span>,
+      <span class="hljs-string">"active"</span>: <span class="hljs-literal">true</span>
+    }
+  ],
+  <span class="hljs-string">"links"</span>: [
+    {
+      <span class="hljs-string">"rel"</span>: <span class="hljs-string">"self"</span>,
+      <span class="hljs-string">"uri"</span>: <span class="hljs-string">"/v1/accounts/aa32b0bd-2c1b-480a-94d7-cff05fcc53b0/programs"</span>
+    },
+    {
+      <span class="hljs-string">"rel"</span>: <span class="hljs-string">"first"</span>,
+      <span class="hljs-string">"uri"</span>: <span class="hljs-string">"/v1/accounts/aa32b0bd-2c1b-480a-94d7-cff05fcc53b0/programs"</span>
+    },
+    {
+      <span class="hljs-string">"rel"</span>: <span class="hljs-string">"prev"</span>,
+      <span class="hljs-string">"uri"</span>: <span class="hljs-string">"/v1/accounts/aa32b0bd-2c1b-480a-94d7-cff05fcc53b0/programs"</span>
+    },
+    {
+      <span class="hljs-string">"rel"</span>: <span class="hljs-string">"next"</span>,
+      <span class="hljs-string">"uri"</span>: <span class="hljs-string">"/v1/accounts/aa32b0bd-2c1b-480a-94d7-cff05fcc53b0/programs"</span>
+    },
+    {
+      <span class="hljs-string">"rel"</span>: <span class="hljs-string">"last"</span>,
+      <span class="hljs-string">"uri"</span>: <span class="hljs-string">"/v1/accounts/aa32b0bd-2c1b-480a-94d7-cff05fcc53b0/programs"</span>
+    }
+  ],
+  <span class="hljs-string">"total"</span>: <span class="hljs-number">2</span>,
+  <span class="hljs-string">"offset"</span>: <span class="hljs-number">0</span>,
+  <span class="hljs-string">"count"</span>: <span class="hljs-number">25</span>,
+  <span class="hljs-string">"nextOffset"</span>: <span class="hljs-number">0</span>,
+  <span class="hljs-string">"prevOffset"</span>: <span class="hljs-number">0</span>,
+  <span class="hljs-string">"lastOffset"</span>: <span class="hljs-number">0</span>,
+  <span class="hljs-string">"pages"</span>: <span class="hljs-number">1</span>
+}</pre>
+</div></div><div data-title="Program Participants" class="keyline-top section contain clearfix " data-reactid="35"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="36"><h3 id="program-participants">Program Participants</h3>
+<p>To get the list of participants in a program </p>
+</div><div class="space-bottom4 col6 pad2 prose clip fill-light space-top5" data-reactid="37"><div class='endpoint dark fill-dark round '>
+      <div class='round-left pad0y pad1x fill-lighten0 code small endpoint-method'>GET</div>
+      <div class='pad0 code small endpoint-url'>/v1/programs/:programId/participants</div>
+    </div>
+<h4 id="participants-response">Participants Response</h4>
+<pre class='hljs'>{
+  <span class="hljs-string">"items"</span>: [
+    {
+      <span class="hljs-string">"id"</span>: <span class="hljs-string">"b81bce68-af95-4f7a-9dfd-5e85599cd88f"</span>,
+      <span class="hljs-string">"customerId"</span>: <span class="hljs-string">""</span>,
+      <span class="hljs-string">"programId"</span>: <span class="hljs-string">"9c93c9ab-b58c-49d8-a8f7-4b4a26707c3d"</span>,
+      <span class="hljs-string">"phone"</span>: <span class="hljs-string">"+15552813987"</span>
+    },
+    {
+      <span class="hljs-string">"id"</span>: <span class="hljs-string">"405b609a-9e48-4f4e-a1f7-c3292465a8e0"</span>,
+      <span class="hljs-string">"customerId"</span>: <span class="hljs-string">""</span>,
+      <span class="hljs-string">"programId"</span>: <span class="hljs-string">"9c93c9ab-b58c-49d8-a8f7-4b4a26707c3d"</span>,
+      <span class="hljs-string">"phone"</span>: <span class="hljs-string">"+15557059460"</span>
+    },
+    {
+      <span class="hljs-string">"id"</span>: <span class="hljs-string">"e76a8e4d-e04e-4059-854f-8a5ad0c18f34"</span>,
+      <span class="hljs-string">"customerId"</span>: <span class="hljs-string">""</span>,
+      <span class="hljs-string">"programId"</span>: <span class="hljs-string">"9c93c9ab-b58c-49d8-a8f7-4b4a26707c3d"</span>,
+      <span class="hljs-string">"phone"</span>: <span class="hljs-string">"+15550738497"</span>
+    }
+  ],
+  <span class="hljs-string">"links"</span>: [
+    {
+      <span class="hljs-string">"rel"</span>: <span class="hljs-string">"self"</span>,
+      <span class="hljs-string">"uri"</span>: <span class="hljs-string">"/v1/programs/9c93c9ab-b58c-49d8-a8f7-4b4a26707c3d/participants"</span>
+    },
+    {
+      <span class="hljs-string">"rel"</span>: <span class="hljs-string">"first"</span>,
+      <span class="hljs-string">"uri"</span>: <span class="hljs-string">"/v1/programs/9c93c9ab-b58c-49d8-a8f7-4b4a26707c3d/participants"</span>
+    },
+    {
+      <span class="hljs-string">"rel"</span>: <span class="hljs-string">"prev"</span>,
+      <span class="hljs-string">"uri"</span>: <span class="hljs-string">"/v1/programs/9c93c9ab-b58c-49d8-a8f7-4b4a26707c3d/participants"</span>
+    },
+    {
+      <span class="hljs-string">"rel"</span>: <span class="hljs-string">"next"</span>,
+      <span class="hljs-string">"uri"</span>: <span class="hljs-string">"/v1/programs/9c93c9ab-b58c-49d8-a8f7-4b4a26707c3d/participants"</span>
+    },
+    {
+      <span class="hljs-string">"rel"</span>: <span class="hljs-string">"last"</span>,
+      <span class="hljs-string">"uri"</span>: <span class="hljs-string">"/v1/programs/9c93c9ab-b58c-49d8-a8f7-4b4a26707c3d/participants"</span>
+    }
+  ],
+  <span class="hljs-string">"total"</span>: <span class="hljs-number">10</span>,
+  <span class="hljs-string">"offset"</span>: <span class="hljs-number">0</span>,
+  <span class="hljs-string">"count"</span>: <span class="hljs-number">25</span>,
+  <span class="hljs-string">"nextOffset"</span>: <span class="hljs-number">0</span>,
+  <span class="hljs-string">"prevOffset"</span>: <span class="hljs-number">0</span>,
+  <span class="hljs-string">"lastOffset"</span>: <span class="hljs-number">0</span>,
+  <span class="hljs-string">"pages"</span>: <span class="hljs-number">1</span>
+}</pre>
+</div></div><div data-title="Upsert Participants" class="keyline-top section contain clearfix " data-reactid="38"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="39"><h3 id="upsert-participants">Upsert Participants</h3>
+<p>By generating a single CSV, you can update or insert participants to a particular program.</p>
+<p>T​he CSV should contain a row of headers, named the same as the program variables.</p>
+<p>​The <code>options</code> object controls how the CSV is processed.</p>
+<ul>
+<li>
+<p><code>new = add</code>: any participants in the CSV that don't exist in Signal Vine will be added (i.e. customer_id &#x26; phone don't exist in the given Signal Vine program).</p>
+</li>
+<li>
+<p><code>new = ignore</code>: any participants in the CSV that don't exist in Signal Vine will be ignored (default if <code>new</code> not present in the <code>options</code> object).</p>
+</li>
+<li>
+<p><code>existing = ignore</code>: any participants in the CSV that exist in Signal Vine will be ignored (default if <code>existing</code> not present in the <code>options</code> object).</p>
+</li>
+<li>
+<p>To update a Signal Vine participant's profile from the CSV, set the <code>existing</code> field to an array containing the profile field names you wish to update (i.e. one or more values in the header row of the CSV file).</p>
+</li>
+<li>
+<p><code>absent = stop</code>: any participants that exist in Signal Vine that are not present in the CSV will be stopped.</p>
+</li>
+<li>
+<p><code>absent = ignore</code>: any participants that exist in ​Signal Vine that are not present in the CSV will be ignored (default if <code>absent</code> is not present in the <code>options</code> object)</p>
+</li>
+</ul>
+</div><div class="space-bottom4 col6 pad2 prose clip fill-light space-top5" data-reactid="40"><div class='endpoint dark fill-dark round '>
+      <div class='round-left pad0y pad1x fill-lighten0 code small endpoint-method'>POST</div>
+      <div class='pad0 code small endpoint-url'>/v2/programs/:programId/participants</div>
+    </div>
+<h4 id="json-body">JSON Body</h4>
+<pre class='hljs'>{
+  <span class="hljs-string">"options"</span>: {
+    <span class="hljs-string">"new"</span>: <span class="hljs-string">"add"</span> | <span class="hljs-string">"ignore"</span>
+    <span class="hljs-string">"existing"</span>: <span class="hljs-string">"ignore"</span> | [<span class="hljs-string">"field1"</span>, <span class="hljs-string">"field2"</span>],
+    <span class="hljs-string">"absent"</span>: <span class="hljs-string">"ignore"</span> | <span class="hljs-string">"stop"</span>
+  },
+  <span class="hljs-string">"participants"</span>: <span class="hljs-string">"customer_id,field1,field2\n123,val1,val2\n,val3,val4"</span> <span class="hljs-comment">// CSV file up to 10MB</span>
+}</pre>
+</div></div><div data-title="Participants" class="keyline-top section contain clearfix " data-reactid="41"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="42"><h2 id="participants">Participants</h2>
+</div></div><div data-title="List Participants" class="keyline-top section contain clearfix " data-reactid="43"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="44"><h3 id="list-participants">List Participants</h3>
+<p>With an account ID, you can request the participants in your account with this endpoint</p>
+</div><div class="space-bottom4 col6 pad2 prose clip fill-light space-top5" data-reactid="45"><div class='endpoint dark fill-dark round '>
+      <div class='round-left pad0y pad1x fill-lighten0 code small endpoint-method'>GET</div>
+      <div class='pad0 code small endpoint-url'>/v1/accounts/:accountId/participants</div>
+    </div>
+<h4 id="example-json">Example JSON</h4>
+<pre class='hljs'>{
+  <span class="hljs-string">"items"</span>: [
+    {
+      <span class="hljs-string">"id"</span>: <span class="hljs-string">"0a4439aa-46b8-4586-a943-f00c4066de30"</span>,
+      <span class="hljs-string">"customerId"</span>: <span class="hljs-string">""</span>,
+      <span class="hljs-string">"programId"</span>: <span class="hljs-string">"f3be52fa-e78a-4080-85e7-1487fb99c583"</span>,
+      <span class="hljs-string">"phone"</span>: <span class="hljs-string">"+15550610306"</span>
+    },
+    {
+      <span class="hljs-string">"id"</span>: <span class="hljs-string">"3ba273af-6986-4831-b017-ab726e12eca6"</span>,
+      <span class="hljs-string">"customerId"</span>: <span class="hljs-string">""</span>,
+      <span class="hljs-string">"programId"</span>: <span class="hljs-string">"f3be52fa-e78a-4080-85e7-1487fb99c583"</span>,
+      <span class="hljs-string">"phone"</span>: <span class="hljs-string">"+15555596868"</span>
+    },
+    {
+      <span class="hljs-string">"id"</span>: <span class="hljs-string">"b81bce68-af95-4f7a-9dfd-5e85599cd88f"</span>,
+      <span class="hljs-string">"customerId"</span>: <span class="hljs-string">""</span>,
+      <span class="hljs-string">"programId"</span>: <span class="hljs-string">"9c93c9ab-b58c-49d8-a8f7-4b4a26707c3d"</span>,
+      <span class="hljs-string">"phone"</span>: <span class="hljs-string">"+15552813987"</span>
+    }
+  ],
+  <span class="hljs-string">"links"</span>: [
+    {
+      <span class="hljs-string">"rel"</span>: <span class="hljs-string">"self"</span>,
+      <span class="hljs-string">"uri"</span>: <span class="hljs-string">"/v1/accounts/aa32b0bd-2c1b-480a-94d7-cff05fcc53b0/participants"</span>
+    },
+    {
+      <span class="hljs-string">"rel"</span>: <span class="hljs-string">"first"</span>,
+      <span class="hljs-string">"uri"</span>: <span class="hljs-string">"/v1/accounts/aa32b0bd-2c1b-480a-94d7-cff05fcc53b0/participants"</span>
+    },
+    {
+      <span class="hljs-string">"rel"</span>: <span class="hljs-string">"prev"</span>,
+      <span class="hljs-string">"uri"</span>: <span class="hljs-string">"/v1/accounts/aa32b0bd-2c1b-480a-94d7-cff05fcc53b0/participants"</span>
+    },
+    {
+      <span class="hljs-string">"rel"</span>: <span class="hljs-string">"next"</span>,
+      <span class="hljs-string">"uri"</span>: <span class="hljs-string">"/v1/accounts/aa32b0bd-2c1b-480a-94d7-cff05fcc53b0/participants"</span>
+    },
+    {
+      <span class="hljs-string">"rel"</span>: <span class="hljs-string">"last"</span>,
+      <span class="hljs-string">"uri"</span>: <span class="hljs-string">"/v1/accounts/aa32b0bd-2c1b-480a-94d7-cff05fcc53b0/participants"</span>
+    }
+  ],
+  <span class="hljs-string">"total"</span>: <span class="hljs-number">20</span>,
+  <span class="hljs-string">"offset"</span>: <span class="hljs-number">0</span>,
+  <span class="hljs-string">"count"</span>: <span class="hljs-number">25</span>,
+  <span class="hljs-string">"nextOffset"</span>: <span class="hljs-number">0</span>,
+  <span class="hljs-string">"prevOffset"</span>: <span class="hljs-number">0</span>,
+  <span class="hljs-string">"lastOffset"</span>: <span class="hljs-number">0</span>,
+  <span class="hljs-string">"pages"</span>: <span class="hljs-number">1</span>
+}</pre>
+</div></div><div data-title="Participants Messages" class="keyline-top section contain clearfix " data-reactid="46"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="47"><h3 id="participants-messages">Participants Messages</h3>
+<p>To get a message sent particularly to a participant, use this endpoint</p>
+<p>You can retrieve the different types of messages by specifying the <code>message_type</code> in the query string: /v1/participants/:participantId/messages?message_type=received</p>
+<p>Note : Different representations are available for each resource, you can append the type parameter to any route to select either the simple or full representation - i.e. /v1/programs/:programId/participants?type=full</p>
+</div><div class="space-bottom4 col6 pad2 prose clip fill-light space-top5" data-reactid="48"><div class='endpoint dark fill-dark round '>
+      <div class='round-left pad0y pad1x fill-lighten0 code small endpoint-method'>GET</div>
+      <div class='pad0 code small endpoint-url'>/v1/participants/:participantId/messages</div>
+    </div>
+<h4 id="response-json">Response JSON</h4>
+<pre class='hljs'>{
+  <span class="hljs-string">"items"</span>: [
+    {
+      <span class="hljs-string">"id"</span>: <span class="hljs-string">"84a49ebd-2761-4050-b111-ebee8f045366"</span>,
+      <span class="hljs-string">"participantId"</span>: <span class="hljs-string">"0a4439aa-46b8-4586-a943-f00c4066de30"</span>,
+      <span class="hljs-string">"programId"</span>: <span class="hljs-string">"f3be52fa-e78a-4080-85e7-1487fb99c583"</span>,
+      <span class="hljs-string">"customerId"</span>: <span class="hljs-string">""</span>,
+      <span class="hljs-string">"sentBy"</span>: <span class="hljs-string">"habagat@aelogica.com"</span>,
+      <span class="hljs-string">"time"</span>: <span class="hljs-string">"2016-10-20T04:26:37.391Z"</span>,
+      <span class="hljs-string">"text"</span>: <span class="hljs-string">"Testing"</span>,
+      <span class="hljs-string">"type"</span>: <span class="hljs-string">"sent"</span>
+    },
+    {
+      <span class="hljs-string">"id"</span>: <span class="hljs-string">"915fb7a4-963e-4253-8cf4-91a067a43705"</span>,
+      <span class="hljs-string">"participantId"</span>: <span class="hljs-string">"0a4439aa-46b8-4586-a943-f00c4066de30"</span>,
+      <span class="hljs-string">"programId"</span>: <span class="hljs-string">"f3be52fa-e78a-4080-85e7-1487fb99c583"</span>,
+      <span class="hljs-string">"customerId"</span>: <span class="hljs-string">""</span>,
+      <span class="hljs-string">"sentBy"</span>: <span class="hljs-string">"habagat@aelogica.com"</span>,
+      <span class="hljs-string">"time"</span>: <span class="hljs-string">"2016-09-22T01:16:13.790Z"</span>,
+      <span class="hljs-string">"text"</span>: <span class="hljs-string">"This message will be sent too!"</span>,
+      <span class="hljs-string">"type"</span>: <span class="hljs-string">"sent"</span>
+    },
+    {
+      <span class="hljs-string">"id"</span>: <span class="hljs-string">"1de6dce3-4ab1-4cad-ad90-fb2649cc568c"</span>,
+      <span class="hljs-string">"participantId"</span>: <span class="hljs-string">"0a4439aa-46b8-4586-a943-f00c4066de30"</span>,
+      <span class="hljs-string">"programId"</span>: <span class="hljs-string">"f3be52fa-e78a-4080-85e7-1487fb99c583"</span>,
+      <span class="hljs-string">"customerId"</span>: <span class="hljs-string">""</span>,
+      <span class="hljs-string">"sentBy"</span>: <span class="hljs-string">"habagat@aelogica.com"</span>,
+      <span class="hljs-string">"time"</span>: <span class="hljs-string">"2016-08-26T06:10:40.798Z"</span>,
+      <span class="hljs-string">"text"</span>: <span class="hljs-string">"Hey Bill"</span>,
+      <span class="hljs-string">"type"</span>: <span class="hljs-string">"sent"</span>
+    },
+    {
+      <span class="hljs-string">"id"</span>: <span class="hljs-string">"e0c2ef52-fc8f-4f15-b033-8a99a0f3cd4d"</span>,
+      <span class="hljs-string">"participantId"</span>: <span class="hljs-string">"0a4439aa-46b8-4586-a943-f00c4066de30"</span>,
+      <span class="hljs-string">"programId"</span>: <span class="hljs-string">"f3be52fa-e78a-4080-85e7-1487fb99c583"</span>,
+      <span class="hljs-string">"customerId"</span>: <span class="hljs-string">""</span>,
+      <span class="hljs-string">"sentBy"</span>: <span class="hljs-string">"habagat@aelogica.com"</span>,
+      <span class="hljs-string">"time"</span>: <span class="hljs-string">"2016-08-25T00:59:53.289Z"</span>,
+      <span class="hljs-string">"text"</span>: <span class="hljs-string">"Hey Guys"</span>,
+      <span class="hljs-string">"type"</span>: <span class="hljs-string">"sent"</span>
+    },
+    {
+      <span class="hljs-string">"id"</span>: <span class="hljs-string">"490ff7f9-579c-4a24-a2b9-6d1b504443ac"</span>,
+      <span class="hljs-string">"participantId"</span>: <span class="hljs-string">"0a4439aa-46b8-4586-a943-f00c4066de30"</span>,
+      <span class="hljs-string">"programId"</span>: <span class="hljs-string">"f3be52fa-e78a-4080-85e7-1487fb99c583"</span>,
+      <span class="hljs-string">"customerId"</span>: <span class="hljs-string">""</span>,
+      <span class="hljs-string">"sentBy"</span>: <span class="hljs-string">"habagat@aelogica.com"</span>,
+      <span class="hljs-string">"time"</span>: <span class="hljs-string">"2016-08-02T06:37:34.146Z"</span>,
+      <span class="hljs-string">"text"</span>: <span class="hljs-string">"Hello there!"</span>,
+      <span class="hljs-string">"type"</span>: <span class="hljs-string">"sent"</span>
+    },
+    {
+      <span class="hljs-string">"id"</span>: <span class="hljs-string">"d921e479-1874-4af8-a576-10eb932d48de"</span>,
+      <span class="hljs-string">"participantId"</span>: <span class="hljs-string">"0a4439aa-46b8-4586-a943-f00c4066de30"</span>,
+      <span class="hljs-string">"programId"</span>: <span class="hljs-string">"f3be52fa-e78a-4080-85e7-1487fb99c583"</span>,
+      <span class="hljs-string">"customerId"</span>: <span class="hljs-string">""</span>,
+      <span class="hljs-string">"sentBy"</span>: <span class="hljs-string">"habagat@aelogica.com"</span>,
+      <span class="hljs-string">"time"</span>: <span class="hljs-string">"2016-08-02T04:35:08.843Z"</span>,
+      <span class="hljs-string">"text"</span>: <span class="hljs-string">"Study hard!"</span>,
+      <span class="hljs-string">"type"</span>: <span class="hljs-string">"sent"</span>
+    }
+  ],
+  <span class="hljs-string">"links"</span>: [
+    {
+      <span class="hljs-string">"rel"</span>: <span class="hljs-string">"self"</span>,
+      <span class="hljs-string">"uri"</span>: <span class="hljs-string">"/v1/participants/0a4439aa-46b8-4586-a943-f00c4066de30/messages"</span>
+    },
+    {
+      <span class="hljs-string">"rel"</span>: <span class="hljs-string">"first"</span>,
+      <span class="hljs-string">"uri"</span>: <span class="hljs-string">"/v1/participants/0a4439aa-46b8-4586-a943-f00c4066de30/messages"</span>
+    },
+    {
+      <span class="hljs-string">"rel"</span>: <span class="hljs-string">"prev"</span>,
+      <span class="hljs-string">"uri"</span>: <span class="hljs-string">"/v1/participants/0a4439aa-46b8-4586-a943-f00c4066de30/messages"</span>
+    },
+    {
+      <span class="hljs-string">"rel"</span>: <span class="hljs-string">"next"</span>,
+      <span class="hljs-string">"uri"</span>: <span class="hljs-string">"/v1/participants/0a4439aa-46b8-4586-a943-f00c4066de30/messages"</span>
+    },
+    {
+      <span class="hljs-string">"rel"</span>: <span class="hljs-string">"last"</span>,
+      <span class="hljs-string">"uri"</span>: <span class="hljs-string">"/v1/participants/0a4439aa-46b8-4586-a943-f00c4066de30/messages"</span>
+    }
+  ],
+  <span class="hljs-string">"total"</span>: <span class="hljs-number">16</span>,
+  <span class="hljs-string">"offset"</span>: <span class="hljs-number">0</span>,
+  <span class="hljs-string">"count"</span>: <span class="hljs-number">25</span>,
+  <span class="hljs-string">"nextOffset"</span>: <span class="hljs-number">0</span>,
+  <span class="hljs-string">"prevOffset"</span>: <span class="hljs-number">0</span>,
+  <span class="hljs-string">"lastOffset"</span>: <span class="hljs-number">0</span>,
+  <span class="hljs-string">"pages"</span>: <span class="hljs-number">1</span>
+}</pre>
+<h4 id="get-request-for-participants">GET Request for Participants</h4>
+<div class='endpoint dark fill-dark round '>
+      <div class='round-left pad0y pad1x fill-lighten0 code small endpoint-method'>GET</div>
+      <div class='pad0 code small endpoint-url'>/v1/participants/:participantId/messages</div>
+    </div>
+</div></div><div data-title="Messages" class="keyline-top section contain clearfix " data-reactid="49"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="50"><h2 id="messages">Messages</h2>
+</div></div><div data-title="List Messages" class="keyline-top section contain clearfix " data-reactid="51"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="52"><h3 id="list-messages">List Messages</h3>
+<p>To list messages for your account, use the following endpoints</p>
+</div><div class="space-bottom4 col6 pad2 prose clip fill-light space-top5" data-reactid="53"><div class='endpoint dark fill-dark round '>
+      <div class='round-left pad0y pad1x fill-lighten0 code small endpoint-method'>GET</div>
+      <div class='pad0 code small endpoint-url'>/v1/accounts/:accountId/messages</div>
+    </div>
+<h4 id="response-json-1">Response JSON</h4>
+<pre class='hljs'></pre>
+</div></div><div data-title="Notes" class="keyline-top section contain clearfix " data-reactid="54"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="55"><h2 id="notes">Notes</h2>
+<p>When implementing the API, here are a few points to keep in mind</p>
+<ul>
+<li>
+<p>The timestamp parameter must include milliseconds to 3 digits - i.e. append .000 to your timestamp, if your language doesn't produce an ISO8601 string to that precision</p>
+</li>
+<li>
+<p>The encrypted string is case sensitive -​ ​the <code>T</code> and <code>Z</code> in the timestamp should be lowercase when building the string to be encrypted for the signature, but upper case in the <code>SignalVine-Date</code> header.</p>
+</li>
+<li>
+<p>Use the bash script's verbose option to verify that the signature you are generating is the correct one, but, remember that different timestamps will create different signatures. You can specify the timestamp for use in the bash script.  So, output the elements of the signature string along with the signature from your code, and call the bash script with the verbose switch &#x26; the time stamp to compare the string before it's encrypted.</p>
+</li>
+</ul>
+<pre><code>THESEUS_API_ROOT​=https://theseus-api-integrations.signalvine.com/ \
+SV_TOKEN=​​xxxx \
+SV_SECRET=​xxxx​ \
+./sign_request --verbose \
+GET /v1/​accounts/​​xxxx
+ \
+2016-10-04T12:00:00.000Z​
+</code></pre>
+<p>Where the last parameter is the same timestamp that your implementation is using.</p>
+</div></div></div></div></div><div class="fixed-top space-left16" data-reactid="56"><div class="events fill-light bottom-shadow pad1 col6 pin-topright  " data-reactid="57"><div class="space-right1 small quiet inline" data-reactid="58">Show examples in:</div><div class="rounded-toggle inline short" data-reactid="59"><a class="strong active" data-reactid="60">scala</a><a class="strong " data-reactid="61">c-sharp</a><a class="strong " data-reactid="62">ruby</a><a class="strong " data-reactid="63">bash</a></div><div class="fr pad0" data-reactid="64"><a title="Display as 1 column" style="cursor:pointer;" class="icon quiet caret-left pad0 fill-darken0 round" data-reactid="65"></a></div></div></div><div class="fill-dark dark bottom-shadow fixed-top pad0 width16" data-reactid="66"><a href="/" class="active space-top1 space-left1 pin-topleft icon round dark pad0 fill-red" data-reactid="67"></a><div class="strong small pad0
+          
+          space-left4 line-height15" data-reactid="68">Wobble API Documentation</div></div></div></div><!--STOP-->
     <script src='bundle.js'></script>
   </body>
 </html>
