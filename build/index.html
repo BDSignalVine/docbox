@@ -10,7 +10,7 @@
     <link href='css/railscasts.css' rel='stylesheet' />
   </head>
   <body>
-    <!--START--><div id='app'><div class="container unlimiter" data-reactroot="" data-reactid="1" data-react-checksum="180221970"><div class="fixed-top fixed-right space-left16" data-reactid="2"><div class="fill-light col6 pin-right" data-reactid="3"></div></div><div class="space-top5 scroll-styled overflow-auto pad1 width16 sidebar fixed-left fill-dark dark" data-reactid="4"><div class="pad0x small" data-reactid="5"><div class="small pad0x quiet space-top1" data-reactid="6">Introduction</div><a href="#introduction-1" class="line-height15 pad0x pad00y quiet block " data-reactid="7">Introduction</a><div class="small pad0x quiet space-top1" data-reactid="8">Example</div><a href="#using-the-api" class="line-height15 pad0x pad00y quiet block " data-reactid="9">Using the API</a><a href="#api-functions" class="line-height15 pad0x pad00y quiet block " data-reactid="10">API Functions</a><a href="#programs" class="line-height15 pad0x pad00y quiet block " data-reactid="11">Programs</a><a href="#participants" class="line-height15 pad0x pad00y quiet block " data-reactid="12">Participants</a><a href="#messages" class="line-height15 pad0x pad00y quiet block " data-reactid="13">Messages</a><a href="#notes" class="line-height15 pad0x pad00y quiet block " data-reactid="14">Notes</a></div></div><div class="space-left16" data-reactid="15"><div class="" data-reactid="16"><div class="clearfix" data-reactid="17"><div data-title="Introduction" class="keyline-top section contain clearfix " data-reactid="18"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="19"><h2 id="introduction-1">Introduction</h2>
+    <!--START--><div id='app'><div class="container unlimiter" data-reactroot="" data-reactid="1" data-react-checksum="-739425403"><div class="fixed-top fixed-right space-left16" data-reactid="2"><div class="fill-light col6 pin-right" data-reactid="3"></div></div><div class="space-top5 scroll-styled overflow-auto pad1 width16 sidebar fixed-left fill-dark dark" data-reactid="4"><div class="pad0x small" data-reactid="5"><div class="small pad0x quiet space-top1" data-reactid="6">Introduction</div><a href="#introduction-1" class="line-height15 pad0x pad00y quiet block " data-reactid="7">Introduction</a><div class="small pad0x quiet space-top1" data-reactid="8">Example</div><a href="#using-the-api" class="line-height15 pad0x pad00y quiet block " data-reactid="9">Using the API</a><a href="#api-functions" class="line-height15 pad0x pad00y quiet block " data-reactid="10">API Functions</a><a href="#programs" class="line-height15 pad0x pad00y quiet block " data-reactid="11">Programs</a><a href="#participants" class="line-height15 pad0x pad00y quiet block " data-reactid="12">Participants</a><a href="#messages" class="line-height15 pad0x pad00y quiet block " data-reactid="13">Messages</a><a href="#notes" class="line-height15 pad0x pad00y quiet block " data-reactid="14">Notes</a></div></div><div class="space-left16" data-reactid="15"><div class="" data-reactid="16"><div class="clearfix" data-reactid="17"><div data-title="Introduction" class="keyline-top section contain clearfix " data-reactid="18"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="19"><h2 id="introduction-1">Introduction</h2>
 <p>The Signal Vine API enables clients to integrate their systems/applications with Signal Vine. The API provides access to your data via HTTPS. </p>
 <p>We follow a RESTful approach, using standard HTTP verbs and HATEOAS links. To make resource requests, you need to create a token and a secret. They are used to sign requests so they can be authorized and authenticated. </p>
 <p>Contact support to sign up for the beta program and retrieve a token and secret for use with your account.</p>
@@ -29,34 +29,40 @@
 <p>Use your secret and token to encrypt the string using SHA2 - 256bit encryption.</p>
 <p>The token and secret for use with your account is available in the portal.  After logging into <a href="https://v3.signalvine.com">https://v3.signalvine.com</a>, click on <code>Tools</code> at the top of the screen, and then click <code>API</code> from the left hand navigation.  </p>
 <p>You can view the secret, by clicking the flashlight icon.  </p>
-</div><div class="space-bottom4 col6 pad2 prose clip fill-light space-top5" data-reactid="24"><pre class='hljs'>package theseus.services
+</div><div class="space-bottom4 col6 pad2 prose clip fill-light space-top5" data-reactid="24"><pre class='hljs'>package signalvine
 
 import javax.crypto.spec.SecretKeySpec
 import javax.crypto.Mac
+import play.api.libs.json._
 
-object RequestSignatureService {
-  private def normalize(clientId: String, method: String, path:String, timeStamp: String, body: String): String = {
-    if (clientId.isEmpty() || method.isEmpty() || path.isEmpty() || timeStamp.isEmpty()) throw new SignatureException("Invalid signature fields")
+object SignatureService {
+  def buildString(token: String, httpVerb: String, path:String, timestamp: DateTime, body: JsValue): Either[String, String] = {
+    val fmt = ISODateTimeFormat.dateTime()
+    val isoStr = fmt.print(timestamp)
+    val bodyStr = Json.stringify(body)
 
-    try {
-      val dt = DateTime.unsafeParse(timeStamp)
-    } catch {
-      case e: Exception =&gt; throw new SignatureException("Could not parse timestamp")
+    val normalizedFields =
+      Seq(token.toLowerCase(), httpVerb.toLowerCase(), path.toLowerCase(), body.toLowerCase(), isoStr.toLowerCase())
+
+    normalizedFields.count(_.isEmpty) match {
+      case 0 =&gt; Right(normalizedFields.mkString("\n"))
+      case _ =&gt; Left("Required fields missing")
     }
-
-    clientId.toLowerCase() ++ "\n" ++ method.toLowerCase() ++ "\n" ++ path.toLowerCase() ++ "\n" ++ body.toLowerCase() ++ "\n" ++ timeStamp.toLowerCase() 
   }
 
-  def sign(clientId: String, secret: Array[Byte], method: String, path: String, timeStamp: String, body: String = ""): String = {
-    val normalized = RequestSignatureService.normalize(clientId, method, path, timeStamp, body)
-    val sec = new SecretKeySpec(secret, "HmacSHA256")
+  def sign(clientId: String, secret: String, method: String, path: String, timeStamp: String, body: String = ""): String = {
+    val stringToSign = buildString(clientId, method, path, timeStamp, body)
+    val sec = secret.getBytes(StandardCharsets.UTF_8)
 
-    var mac = Mac.getInstance("HmacSHA256")
-    mac.init(sec)
-    
-    var data = mac.doFinal(normalized.getBytes("utf-8"))
-  
-    return new sun.misc.BASE64Encoder().encode(data)
+    val key = new SecretKeySpec(sec, "HmacSHA256")
+    val value = stringToSign.getBytes("utf-8")
+
+    val mac = Mac.getInstance("HmacSHA256")
+    val signature = mac.init(sec).doFinal(value)
+
+    val encoder = new sun.misc.BASE64Encoder()
+
+    encoder.encode(data)
   }
 }</pre>
 </div></div><div data-title="Custom headers" class="keyline-top section contain clearfix " data-reactid="25"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="26"><h3 id="custom-headers">Custom headers</h3>
@@ -70,14 +76,35 @@ object RequestSignatureService {
       <div class='pad0 code small endpoint-url'>https://api.signalvine.com/Foo/Bar?waz=xax</div>
     </div>
 <h4 id="post-request">POST request</h4>
+<pre class='hljs'>Host: https://app.example.com
+Content-Type: application/json
+Content-Length: 10
+SignalVine-Date: 2014-03-11T05:03:08.619Z
+Authorization: SignalVine 123456:7LWA3dHvkOC87h5uRVBofIehmeGRxZJ0DFgWra2E6rs
+{woo: war}     </pre>
 <h4 id="string-to-sign">String to Sign</h4>
+<pre class='hljs'>123456
+post
+/foo/bar
+{woo: war}
+2014-03-11t05:03:08.619z</pre>
 <h4 id="get-request">GET Request</h4>
 <div class='endpoint dark fill-dark round '>
       <div class='round-left pad0y pad1x fill-lighten0 code small endpoint-method'>GET</div>
       <div class='pad0 code small endpoint-url'>https://api.signalvine.com/Foo/Bar?waz=xax</div>
     </div>
 <h4 id="get-request-1">GET Request</h4>
+<pre class='hljs'>Host: https://app.example.com
+Content-Type: application/json
+Content-Length: 0
+SignalVine-Date: 2014-03-11T05:03:08.619Z
+Authorization: SignalVine 123456:7LWA3dHvkOC87h5uRVBofIehmeGRxZJ0DFgWra2E6rs</pre>
 <h4 id="string-to-sign-1">String to Sign</h4>
+<pre class='hljs'>123456
+get
+/foo/bar
+
+2014-03-11t05:03:08.619z</pre>
 </div></div><div data-title="API Functions" class="keyline-top section contain clearfix " data-reactid="28"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="29"><h2 id="api-functions">API Functions</h2>
 <p>There are 3 primary entities available via the API: program, participant and message.
 Further, there are different types of messages: sent, received, scheduled and template.</p>
@@ -210,9 +237,6 @@ Further, there are different types of messages: sent, received, scheduled and te
 <p>To update a Signal Vine participant's profile from the CSV, set the <code>existing</code> field to an array containing the profile field names you wish to update (i.e. one or more values in the header row of the CSV file).</p>
 </li>
 <li>
-<p><code>absent = stop</code>: any participants that exist in Signal Vine that are not present in the CSV will be stopped.</p>
-</li>
-<li>
 <p><code>absent = ignore</code>: any participants that exist in ​Signal Vine that are not present in the CSV will be ignored (default if <code>absent</code> is not present in the <code>options</code> object)</p>
 </li>
 </ul>
@@ -291,7 +315,16 @@ Further, there are different types of messages: sent, received, scheduled and te
 </div></div><div data-title="Participants Messages" class="keyline-top section contain clearfix " data-reactid="46"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="47"><h3 id="participants-messages">Participants Messages</h3>
 <p>To get a message sent particularly to a participant, use this endpoint</p>
 <p>You can retrieve the different types of messages by specifying the <code>message_type</code> in the query string: /v1/participants/:participantId/messages?message_type=received</p>
-<p>Note : Different representations are available for each resource, you can append the type parameter to any route to select either the simple or full representation - i.e. /v1/programs/:programId/participants?type=full</p>
+<p>Note : </p>
+<ul>
+<li>
+<p>Different representations are available for each resource, you can append the type parameter to any route to select either the simple or full representation - i.e. /v1/programs/:programId/participants?type=full</p>
+</li>
+<li>
+<p>You can also add <code>updated-after</code> parameter to fetch resources after a date/time
+i.e. /v1/programs/[program id]/participants?type=full&#x26;updated-after=[date/time]</p>
+</li>
+</ul>
 </div><div class="space-bottom4 col6 pad2 prose clip fill-light space-top5" data-reactid="48"><div class='endpoint dark fill-dark round '>
       <div class='round-left pad0y pad1x fill-lighten0 code small endpoint-method'>GET</div>
       <div class='pad0 code small endpoint-url'>/v1/participants/:participantId/messages</div>
@@ -398,9 +431,14 @@ Further, there are different types of messages: sent, received, scheduled and te
 </div></div><div data-title="Messages" class="keyline-top section contain clearfix " data-reactid="49"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="50"><h2 id="messages">Messages</h2>
 </div></div><div data-title="List Messages" class="keyline-top section contain clearfix " data-reactid="51"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="52"><h3 id="list-messages">List Messages</h3>
 <p>To list messages for your account, use the following endpoints</p>
+<p>You can also add the <code>message_type</code> parameter to retrieve results.</p>
+<ul>
+<li><code>message_type=sent</code>: Fetches the sent messages.</li>
+<li><code>message_type=received</code>: Fetches the received messages.</li>
+</ul>
 </div><div class="space-bottom4 col6 pad2 prose clip fill-light space-top5" data-reactid="53"><div class='endpoint dark fill-dark round '>
       <div class='round-left pad0y pad1x fill-lighten0 code small endpoint-method'>GET</div>
-      <div class='pad0 code small endpoint-url'>/v1/accounts/:accountId/messages</div>
+      <div class='pad0 code small endpoint-url'>/v1/accounts/:accountId/messages?message_type=sent</div>
     </div>
 <h4 id="response-json-1">Response JSON</h4>
 <pre class='hljs'></pre>
@@ -428,7 +466,7 @@ GET /v1/​accounts/​​xxxx
 <p>Where the last parameter is the same timestamp that your implementation is using.</p>
 </div></div></div></div></div><div class="fixed-top space-left16" data-reactid="56"><div class="events fill-light bottom-shadow pad1 col6 pin-topright  " data-reactid="57"><div class="space-right1 small quiet inline" data-reactid="58">Show examples in:</div><div class="rounded-toggle inline short" data-reactid="59"><a class="strong active" data-reactid="60">scala</a><a class="strong " data-reactid="61">c-sharp</a><a class="strong " data-reactid="62">ruby</a><a class="strong " data-reactid="63">bash</a></div><div class="fr pad0" data-reactid="64"><a title="Display as 1 column" style="cursor:pointer;" class="icon quiet caret-left pad0 fill-darken0 round" data-reactid="65"></a></div></div></div><div class="fill-dark dark bottom-shadow fixed-top pad0 width16" data-reactid="66"><a href="/" class="active space-top1 space-left1 pin-topleft icon round dark pad0 fill-red" data-reactid="67"></a><div class="strong small pad0
           
-          space-left4 line-height15" data-reactid="68">Wobble API Documentation</div></div></div></div><!--STOP-->
+          space-left4 line-height15" data-reactid="68">Signal Vine API Documentation</div></div></div></div><!--STOP-->
     <script src='bundle.js'></script>
   </body>
 </html>

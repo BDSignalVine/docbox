@@ -20,76 +20,76 @@ The token and secret for use with your account is available in the portal.  Afte
 You can view the secret, by clicking the flashlight icon.  
 
 ```scala
-package theseus.services
+package signalvine
 
 import javax.crypto.spec.SecretKeySpec
 import javax.crypto.Mac
+import play.api.libs.json._
 
-object RequestSignatureService {
-  private def normalize(clientId: String, method: String, path:String, timeStamp: String, body: String): String = {
-    if (clientId.isEmpty() || method.isEmpty() || path.isEmpty() || timeStamp.isEmpty()) throw new SignatureException("Invalid signature fields")
+object SignatureService {
+  def buildString(token: String, httpVerb: String, path:String, timestamp: DateTime, body: JsValue): Either[String, String] = {
+    val fmt = ISODateTimeFormat.dateTime()
+    val isoStr = fmt.print(timestamp)
+    val bodyStr = Json.stringify(body)
 
-    try {
-      val dt = DateTime.unsafeParse(timeStamp)
-    } catch {
-      case e: Exception => throw new SignatureException("Could not parse timestamp")
+    val normalizedFields =
+      Seq(token.toLowerCase(), httpVerb.toLowerCase(), path.toLowerCase(), body.toLowerCase(), isoStr.toLowerCase())
+
+    normalizedFields.count(_.isEmpty) match {
+      case 0 => Right(normalizedFields.mkString("\n"))
+      case _ => Left("Required fields missing")
     }
-
-    clientId.toLowerCase() ++ "\n" ++ method.toLowerCase() ++ "\n" ++ path.toLowerCase() ++ "\n" ++ body.toLowerCase() ++ "\n" ++ timeStamp.toLowerCase() 
   }
 
-  def sign(clientId: String, secret: Array[Byte], method: String, path: String, timeStamp: String, body: String = ""): String = {
-    val normalized = RequestSignatureService.normalize(clientId, method, path, timeStamp, body)
-    val sec = new SecretKeySpec(secret, "HmacSHA256")
+  def sign(clientId: String, secret: String, method: String, path: String, timeStamp: String, body: String = ""): String = {
+    val stringToSign = buildString(clientId, method, path, timeStamp, body)
+    val sec = secret.getBytes(StandardCharsets.UTF_8)
 
-    var mac = Mac.getInstance("HmacSHA256")
-    mac.init(sec)
-    
-    var data = mac.doFinal(normalized.getBytes("utf-8"))
-  
-    return new sun.misc.BASE64Encoder().encode(data)
+    val key = new SecretKeySpec(sec, "HmacSHA256")
+    val value = stringToSign.getBytes("utf-8")
+
+    val mac = Mac.getInstance("HmacSHA256")
+    val signature = mac.init(sec).doFinal(value)
+
+    val encoder = new sun.misc.BASE64Encoder()
+
+    encoder.encode(data)
   }
 }
 ```
 ```c-sharp
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Security.Cryptography;
-using System.Text;
-using System.Web.Script.Serialization;
-
-namespace signalVineApi
+namespace signalvine
 {
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            // this is a program that posts to SV
-        }     
-        public static Dictionary<string,object> APICall(string action,string endPoint, string body ="")
-        {
-            var token = // your token
-            var secret = //your secret ;
-            var timestamp = DateTime.UtcNow.ToString("o");
-            var wc = new WebClient();
-            wc.Headers.Add("Authorization", "SignalVine "+ token + ":" + Convert.ToBase64String(new HMACSHA256(Encoding.ASCII.GetBytes(secret)).ComputeHash(Encoding.ASCII.GetBytes(token + "\n" + action + "\n" + endPoint + "\n" + body + "\n" + timestamp.ToLower()))));
-            wc.Headers.Add("SignalVine-Date", timestamp);
-            string jsonResult = "";
-            if (action.ToLower()=="get")
-                jsonResult = wc.DownloadString("https://theseus-api-integrations.signalvine.com" + endPoint);
-            if (action.ToLower() == "post")
-                jsonResult = wc.UploadString("https://theseus-api-integrations.signalvine.com" + endPoint, body);
-            if (action.ToLower() == "patch")
-                jsonResult = wc.UploadString("https://theseus-api-integrations.signalvine.com" + endPoint, "PATCH", body);
-            return new JavaScriptSerializer().Deserialize<Dictionary<string, object>>(jsonResult);
-        }
-        public static Dictionary<string,object> profileField(string name, string type,object value)
-        {
-            return new Dictionary<string, object>() { { "name", name }, { "type", type }, { "value", value } };
-        }
+  class SignatureService
+  {
+    public string buildString(string token, DateTime timestamp, string httpVerb, string path, Json body) {
+      var JavascriptSerializer = new jsSerializer();
+      var bodyStr = jsSerailizer.serialize(body);
+
+      val sb = new StringBuilder();
+      sb.append(token.toLower());
+      sb.appendLine();
+      sb.append(httpVerb.toLower());
+      sb.appendLine();
+      sb.append(path.toLower());
+      sb.appendLine();
+      sb.append(bodyStr.toLower());
+      sb.appendLine();
+      sb.appendLine(timestamp.toString("o").toLower());
+
+      return sb.toString();
     }
+
+    public string sign(string token, string secret, DateTime timestamp, string httpVerb, string path, Json body) {
+      var stringToSign = buildString(token, timestamp, httpVerb, path, body);
+      var key = Encoding.UTF8.getBytes(secret);
+      var val = Encoding.UTF8.getBytes(stringToSign);
+      var encoder = new HMACSHA256(secretBytes);
+      var signature = encoder.ComputeHash(key, val);
+
+      return Convert.ToBase64String(signature)
+    }
+  }
 }
 ```
 
@@ -297,18 +297,18 @@ POST https://api.signalvine.com/Foo/Bar?waz=xax
 
 #### POST request
 
-```curl
+```scala
 Host: https://app.example.com
 Content-Type: application/json
 Content-Length: 10
 SignalVine-Date: 2014-03-11T05:03:08.619Z
 Authorization: SignalVine 123456:7LWA3dHvkOC87h5uRVBofIehmeGRxZJ0DFgWra2E6rs
-{woo: war}
-          
+{woo: war}     
 ```
+
 #### String to Sign
 
-```curl
+```scala
 123456
 post
 /foo/bar
@@ -323,7 +323,7 @@ GET https://api.signalvine.com/Foo/Bar?waz=xax
 ```
 #### GET Request 
 
-```curl
+```scala
 Host: https://app.example.com
 Content-Type: application/json
 Content-Length: 0
@@ -333,7 +333,7 @@ Authorization: SignalVine 123456:7LWA3dHvkOC87h5uRVBofIehmeGRxZJ0DFgWra2E6rs
 
 #### String to Sign
 
-```curl
+```scala
 123456
 get
 /foo/bar
@@ -487,8 +487,6 @@ T​he CSV should contain a row of headers, named the same as the program variab
 *  `existing = ignore`: any participants in the CSV that exist in Signal Vine will be ignored (default if `existing` not present in the `options` object).
 
 *  To update a Signal Vine participant's profile from the CSV, set the `existing` field to an array containing the profile field names you wish to update (i.e. one or more values in the header row of the CSV file).
-
-*  `absent = stop`: any participants that exist in Signal Vine that are not present in the CSV will be stopped.
 
 *  `absent = ignore`: any participants that exist in ​Signal Vine that are not present in the CSV will be ignored (default if `absent` is not present in the `options` object)
 
@@ -687,7 +685,14 @@ GET /v1/participants/:participantId/messages
 
 You can retrieve the different types of messages by specifying the `message_type` in the query string: /v1/participants/:participantId/messages?message_type=received
 
-Note : Different representations are available for each resource, you can append the type parameter to any route to select either the simple or full representation - i.e. /v1/programs/:programId/participants?type=full
+Note : 
+
+*  Different representations are available for each resource, you can append the type parameter to any route to select either the simple or full representation - i.e. /v1/programs/:programId/participants?type=full
+
+*  You can also add `updated-after` parameter to fetch resources after a date/time
+i.e. /v1/programs/[program id]/participants?type=full&updated-after=[date/time]
+
+
 
 ## Messages
 
@@ -695,8 +700,15 @@ Note : Different representations are available for each resource, you can append
 
 To list messages for your account, use the following endpoints
 
+You can also add the `message_type` parameter to retrieve results.
+
+*  `message_type=sent`: Fetches the sent messages.
+*  `message_type=received`: Fetches the received messages.
+
+
+
 ```endpoint
-GET /v1/accounts/:accountId/messages
+GET /v1/accounts/:accountId/messages?message_type=sent
 ```
 
 #### Response JSON

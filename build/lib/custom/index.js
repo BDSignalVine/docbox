@@ -6,9 +6,9 @@
  */
 
 module.exports.brandNames = {
-  desktop: 'Wobble API Documentation',
-  tablet: 'Wobble API Docs',
-  mobile: 'API Docs'
+  desktop: 'Signal Vine API Documentation',
+  tablet: 'Signal Vine API Docs',
+  mobile: 'Signal Vine API Docs'
 };
 
 /**
