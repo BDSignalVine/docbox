@@ -30,6 +30,7 @@ SSO profile. Supported values are POST, Artifact, and
 PAOS.
 Signal Vine supports POST binding only.
 
+#### Sample Service Provider Metadata File
 
 ```scala
 <?xml version="1.0" encoding="UTF-8"?>
@@ -80,4 +81,43 @@ Avs0K9tr03e1h7t+Rykh4K2eQv</ds:X509Certificate>
       <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTPPOST" Location="http://172.16.0.106:8080/auth/saml-callback" index="1" />
    </md:SPSSODescriptor>
 </md:EntityDescriptor>
+```
+
+## IDP Metadata
+
+An Identity Provider (IdP), sometimes called an Identity Service Provider or Identity
+Assertion Provider, is an online service or website that authenticates users on the Internet
+by means of security tokens, one of which is SAML 2.0. Signal Vine needs
+the IDP SAML metadata that we get from the IdP that includes the issuer's name, expiration
+information, and keys that can be used to validate the SAML authentication response
+(assertions) that are received from the IdP. 
+
+## IDP Metadata Mapping
+
+The SAML 2.0 assertion should include all the attributes we need for the user in the service
+provider (Signal Vine application). Exactly what is transported is a matter of negotiation
+between SV and the operator of the identity provider. The identity provider sends the
+attributes as attribute=value pairs. We need to know the name of the SAML 2.0 attribute
+and what kind of value it carries so we can map it to user attributes in SV application
+(already mapped) 
+
+#### Mapping Attributes to fetch from IDP SAML Response 
+```scala
+<saml:Attribute Name="uid" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+ <saml:AttributeValue xsi:type="xs:string">test15@mailinator.com</saml:AttributeValue>
+</saml:Attribute>
+<saml:Attribute Name="telephoneNumber" NameFormat="urn:oasis:names:tc:SAML:2.0:attrnameformat:basic">
+
+ <saml:AttributeValue xsi:type="xs:string">18014374321</saml:AttributeValue>
+</saml:Attribute>
+<saml:Attribute Name="givenName" NameFormat="urn:oasis:names:tc:SAML:2.0:attrnameformat:basic">
+
+ <saml:AttributeValue xsi:type="xs:string">TUser99991</saml:AttributeValue>
+</saml:Attribute>
+<saml:Attribute Name="sn" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+ <saml:AttributeValue xsi:type="xs:string">Test88881</saml:AttributeValue>
+</saml:Attribute>
+<saml:Attribute Name="mail" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+ <saml:AttributeValue xsi:type="xs:string">test15@mailinator.com</saml:AttributeValue>
+</saml:Attribute>
 ```
