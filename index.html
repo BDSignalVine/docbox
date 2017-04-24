@@ -10,13 +10,13 @@
     <link href='css/railscasts.css' rel='stylesheet' />
   </head>
   <body>
-    <!--START--><div id='app'><div class="container unlimiter" data-reactroot="" data-reactid="1" data-react-checksum="-2047065648"><div class="fixed-top fixed-right space-left16" data-reactid="2"><div class="fill-light col6 pin-right" data-reactid="3"></div></div><div class="space-top5 scroll-styled overflow-auto pad1 width16 sidebar fixed-left fill-dark dark" data-reactid="4"><div class="pad0x small" data-reactid="5"><div class="small pad0x quiet space-top1" data-reactid="6">Introduction</div><a href="#introduction-1" class="line-height15 pad0x pad00y quiet block " data-reactid="7">Introduction</a><div class="small pad0x quiet space-top1" data-reactid="8">Example</div><a href="#using-the-api" class="line-height15 pad0x pad00y quiet block " data-reactid="9">Using the API</a><a href="#api-functions" class="line-height15 pad0x pad00y quiet block " data-reactid="10">API Functions</a><a href="#programs" class="line-height15 pad0x pad00y quiet block " data-reactid="11">Programs</a><a href="#participants" class="line-height15 pad0x pad00y quiet block " data-reactid="12">Participants</a><a href="#messages" class="line-height15 pad0x pad00y quiet block " data-reactid="13">Messages</a><a href="#notes" class="line-height15 pad0x pad00y quiet block " data-reactid="14">Notes</a></div></div><div class="space-left16" data-reactid="15"><div class="" data-reactid="16"><div class="clearfix" data-reactid="17"><div data-title="Introduction" class="keyline-top section contain clearfix " data-reactid="18"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="19"><h2 id="introduction-1">Introduction</h2>
+    <!--START--><div id='app'><div class="container unlimiter" data-reactroot="" data-reactid="1" data-react-checksum="1776918600"><div class="fixed-top fixed-right space-left16" data-reactid="2"><div class="fill-light col6 pin-right" data-reactid="3"></div></div><div class="space-top5 scroll-styled overflow-auto pad1 width16 sidebar fixed-left fill-dark dark" data-reactid="4"><div class="pad0x small" data-reactid="5"><div class="small pad0x quiet space-top1" data-reactid="6">Introduction</div><a href="#introduction-1" class="line-height15 pad0x pad00y quiet block " data-reactid="7">Introduction</a><div class="small pad0x quiet space-top1" data-reactid="8">API</div><a href="#using-the-api" class="line-height15 pad0x pad00y quiet block " data-reactid="9">Using the API</a><a href="#api-functions" class="line-height15 pad0x pad00y quiet block " data-reactid="10">API Functions</a><a href="#programs" class="line-height15 pad0x pad00y quiet block " data-reactid="11">Programs</a><a href="#participants" class="line-height15 pad0x pad00y quiet block " data-reactid="12">Participants</a><a href="#messages" class="line-height15 pad0x pad00y quiet block " data-reactid="13">Messages</a><a href="#notes" class="line-height15 pad0x pad00y quiet block " data-reactid="14">Notes</a><div class="small pad0x quiet space-top1" data-reactid="15">SSO</div><a href="#overview" class="line-height15 pad0x pad00y quiet block " data-reactid="16">Overview</a><a href="#sp-metadata" class="line-height15 pad0x pad00y quiet block " data-reactid="17">SP Metadata</a><a href="#idp-metadata" class="line-height15 pad0x pad00y quiet block " data-reactid="18">IDP Metadata</a><a href="#idp-metadata-mapping" class="line-height15 pad0x pad00y quiet block " data-reactid="19">IDP Metadata Mapping</a></div></div><div class="space-left16" data-reactid="20"><div class="" data-reactid="21"><div class="clearfix" data-reactid="22"><div data-title="Introduction" class="keyline-top section contain clearfix " data-reactid="23"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="24"><h2 id="introduction-1">Introduction</h2>
 <p>The Signal Vine API enables clients to integrate their systems/applications with Signal Vine. The API provides access to your data via HTTPS. </p>
 <p>We follow a RESTful approach, using standard HTTP verbs and HATEOAS links. To make resource requests, you need to create a token and a secret. They are used to sign requests so they can be authorized and authenticated. </p>
 <p>Contact support to sign up for the beta program and retrieve a token and secret for use with your account.</p>
-</div></div><div data-title="Using the API" class="keyline-top section contain clearfix " data-reactid="20"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="21"><h2 id="using-the-api">Using the API</h2>
+</div></div><div data-title="Using the API" class="keyline-top section contain clearfix " data-reactid="25"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="26"><h2 id="using-the-api">Using the API</h2>
 <p>Using our API is as easy as following the next 4 steps.</p>
-</div></div><div data-title="Create a Signature" class="keyline-top section contain clearfix " data-reactid="22"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="23"><h3 id="create-a-signature">Create a Signature</h3>
+</div></div><div data-title="Create a Signature" class="keyline-top section contain clearfix " data-reactid="27"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="28"><h3 id="create-a-signature">Create a Signature</h3>
 <p>Create a string from components of the HTTP request, and encrypt it using your application secret. The token acts as the shared key, which is then used by the api to decrypt and verify the contents of the signature.</p>
 <p>Lowercase &#x26; concatenate the following fields together, using \n as a separator.</p>
 <ul>
@@ -29,7 +29,7 @@
 <p>Use your secret and token to encrypt the string using SHA2 - 256bit encryption.</p>
 <p>The token and secret for use with your account is available in the portal.  After logging into <a href="https://v3.signalvine.com">https://v3.signalvine.com</a>, click on <code>Tools</code> at the top of the screen, and then click <code>API</code> from the left hand navigation.  </p>
 <p>You can view the secret, by clicking the flashlight icon.  </p>
-</div><div class="space-bottom4 col6 pad2 prose clip fill-light space-top5" data-reactid="24"><pre class='hljs'>package signalvine
+</div><div class="space-bottom4 col6 pad2 prose clip fill-light space-top5" data-reactid="29"><pre class='hljs'>package signalvine
 
 import javax.crypto.spec.SecretKeySpec
 import javax.crypto.Mac
@@ -65,13 +65,13 @@ object SignatureService {
     encoder.encode(data)
   }
 }</pre>
-</div></div><div data-title="Custom headers" class="keyline-top section contain clearfix " data-reactid="25"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="26"><h3 id="custom-headers">Custom headers</h3>
+</div></div><div data-title="Custom headers" class="keyline-top section contain clearfix " data-reactid="30"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="31"><h3 id="custom-headers">Custom headers</h3>
 <p>The API looks for 2 particular headers on all inbound requests: </p>
 <ul>
 <li>The timestamp you encoded into the signature</li>
 <li>The token and signature themselves. The signature should be sent as a BASE64 string.</li>
 </ul>
-</div><div class="space-bottom4 col6 pad2 prose clip fill-light space-top5" data-reactid="27"><div class='endpoint dark fill-dark round '>
+</div><div class="space-bottom4 col6 pad2 prose clip fill-light space-top5" data-reactid="32"><div class='endpoint dark fill-dark round '>
       <div class='round-left pad0y pad1x fill-lighten0 code small endpoint-method'>POST</div>
       <div class='pad0 code small endpoint-url'>https://api.signalvine.com/Foo/Bar?waz=xax</div>
     </div>
@@ -105,13 +105,13 @@ get
 /foo/bar
 
 2014-03-11t05:03:08.619z</pre>
-</div></div><div data-title="API Functions" class="keyline-top section contain clearfix " data-reactid="28"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="29"><h2 id="api-functions">API Functions</h2>
+</div></div><div data-title="API Functions" class="keyline-top section contain clearfix " data-reactid="33"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="34"><h2 id="api-functions">API Functions</h2>
 <p>There are 3 primary entities available via the API: program, participant and message.
 Further, there are different types of messages: sent, received, scheduled and template.</p>
-</div></div><div data-title="Programs" class="keyline-top section contain clearfix " data-reactid="30"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="31"><h2 id="programs">Programs</h2>
-</div></div><div data-title="List Programs" class="keyline-top section contain clearfix " data-reactid="32"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="33"><h3 id="list-programs">List Programs</h3>
+</div></div><div data-title="Programs" class="keyline-top section contain clearfix " data-reactid="35"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="36"><h2 id="programs">Programs</h2>
+</div></div><div data-title="List Programs" class="keyline-top section contain clearfix " data-reactid="37"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="38"><h3 id="list-programs">List Programs</h3>
 <p>With an account ID, you can request your programs like this</p>
-</div><div class="space-bottom4 col6 pad2 prose clip fill-light space-top5" data-reactid="34"><div class='endpoint dark fill-dark round '>
+</div><div class="space-bottom4 col6 pad2 prose clip fill-light space-top5" data-reactid="39"><div class='endpoint dark fill-dark round '>
       <div class='round-left pad0y pad1x fill-lighten0 code small endpoint-method'>GET</div>
       <div class='pad0 code small endpoint-url'>/v1/accounts/:accountId/programs</div>
     </div>
@@ -161,9 +161,9 @@ Further, there are different types of messages: sent, received, scheduled and te
   <span class="hljs-string">"lastOffset"</span>: <span class="hljs-number">0</span>,
   <span class="hljs-string">"pages"</span>: <span class="hljs-number">1</span>
 }</pre>
-</div></div><div data-title="Program Participants" class="keyline-top section contain clearfix " data-reactid="35"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="36"><h3 id="program-participants">Program Participants</h3>
+</div></div><div data-title="Program Participants" class="keyline-top section contain clearfix " data-reactid="40"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="41"><h3 id="program-participants">Program Participants</h3>
 <p>To get the list of participants in a program </p>
-</div><div class="space-bottom4 col6 pad2 prose clip fill-light space-top5" data-reactid="37"><div class='endpoint dark fill-dark round '>
+</div><div class="space-bottom4 col6 pad2 prose clip fill-light space-top5" data-reactid="42"><div class='endpoint dark fill-dark round '>
       <div class='round-left pad0y pad1x fill-lighten0 code small endpoint-method'>GET</div>
       <div class='pad0 code small endpoint-url'>/v1/programs/:programId/participants</div>
     </div>
@@ -219,7 +219,7 @@ Further, there are different types of messages: sent, received, scheduled and te
   <span class="hljs-string">"lastOffset"</span>: <span class="hljs-number">0</span>,
   <span class="hljs-string">"pages"</span>: <span class="hljs-number">1</span>
 }</pre>
-</div></div><div data-title="Upsert Participants" class="keyline-top section contain clearfix " data-reactid="38"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="39"><h3 id="upsert-participants">Upsert Participants</h3>
+</div></div><div data-title="Upsert Participants" class="keyline-top section contain clearfix " data-reactid="43"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="44"><h3 id="upsert-participants">Upsert Participants</h3>
 <p>By generating a single CSV, you can update or insert participants to a particular program.</p>
 <p>T​he CSV should contain a row of headers, named the same as the program variables.</p>
 <p>​The <code>options</code> object controls how the CSV is processed.</p>
@@ -240,7 +240,7 @@ Further, there are different types of messages: sent, received, scheduled and te
 <p><code>absent = ignore</code>: any participants that exist in ​Signal Vine that are not present in the CSV will be ignored (default if <code>absent</code> is not present in the <code>options</code> object)</p>
 </li>
 </ul>
-</div><div class="space-bottom4 col6 pad2 prose clip fill-light space-top5" data-reactid="40"><div class='endpoint dark fill-dark round '>
+</div><div class="space-bottom4 col6 pad2 prose clip fill-light space-top5" data-reactid="45"><div class='endpoint dark fill-dark round '>
       <div class='round-left pad0y pad1x fill-lighten0 code small endpoint-method'>POST</div>
       <div class='pad0 code small endpoint-url'>/v2/programs/:programId/participants</div>
     </div>
@@ -253,10 +253,10 @@ Further, there are different types of messages: sent, received, scheduled and te
   },
   <span class="hljs-string">"participants"</span>: <span class="hljs-string">"customer_id,field1,field2\n123,val1,val2\n,val3,val4"</span> <span class="hljs-comment">// CSV file up to 10MB</span>
 }</pre>
-</div></div><div data-title="Participants" class="keyline-top section contain clearfix " data-reactid="41"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="42"><h2 id="participants">Participants</h2>
-</div></div><div data-title="List Participants" class="keyline-top section contain clearfix " data-reactid="43"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="44"><h3 id="list-participants">List Participants</h3>
+</div></div><div data-title="Participants" class="keyline-top section contain clearfix " data-reactid="46"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="47"><h2 id="participants">Participants</h2>
+</div></div><div data-title="List Participants" class="keyline-top section contain clearfix " data-reactid="48"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="49"><h3 id="list-participants">List Participants</h3>
 <p>With an account ID, you can request the participants in your account with this endpoint</p>
-</div><div class="space-bottom4 col6 pad2 prose clip fill-light space-top5" data-reactid="45"><div class='endpoint dark fill-dark round '>
+</div><div class="space-bottom4 col6 pad2 prose clip fill-light space-top5" data-reactid="50"><div class='endpoint dark fill-dark round '>
       <div class='round-left pad0y pad1x fill-lighten0 code small endpoint-method'>GET</div>
       <div class='pad0 code small endpoint-url'>/v1/accounts/:accountId/participants</div>
     </div>
@@ -312,7 +312,7 @@ Further, there are different types of messages: sent, received, scheduled and te
   <span class="hljs-string">"lastOffset"</span>: <span class="hljs-number">0</span>,
   <span class="hljs-string">"pages"</span>: <span class="hljs-number">1</span>
 }</pre>
-</div></div><div data-title="Participants Messages" class="keyline-top section contain clearfix " data-reactid="46"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="47"><h3 id="participants-messages">Participants Messages</h3>
+</div></div><div data-title="Participants Messages" class="keyline-top section contain clearfix " data-reactid="51"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="52"><h3 id="participants-messages">Participants Messages</h3>
 <p>To get a message sent particularly to a participant, use this endpoint</p>
 <p>You can retrieve the different types of messages by specifying the <code>message_type</code> in the query string: /v1/participants/:participantId/messages?message_type=received</p>
 <p>Note : </p>
@@ -325,7 +325,7 @@ Further, there are different types of messages: sent, received, scheduled and te
 i.e. /v1/programs/[program id]/participants?type=full&#x26;updated-after=[date/time]</p>
 </li>
 </ul>
-</div><div class="space-bottom4 col6 pad2 prose clip fill-light space-top5" data-reactid="48"><div class='endpoint dark fill-dark round '>
+</div><div class="space-bottom4 col6 pad2 prose clip fill-light space-top5" data-reactid="53"><div class='endpoint dark fill-dark round '>
       <div class='round-left pad0y pad1x fill-lighten0 code small endpoint-method'>GET</div>
       <div class='pad0 code small endpoint-url'>/v1/participants/:participantId/messages</div>
     </div>
@@ -428,21 +428,21 @@ i.e. /v1/programs/[program id]/participants?type=full&#x26;updated-after=[date/t
       <div class='round-left pad0y pad1x fill-lighten0 code small endpoint-method'>GET</div>
       <div class='pad0 code small endpoint-url'>/v1/participants/:participantId/messages</div>
     </div>
-</div></div><div data-title="Messages" class="keyline-top section contain clearfix " data-reactid="49"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="50"><h2 id="messages">Messages</h2>
-</div></div><div data-title="List Messages" class="keyline-top section contain clearfix " data-reactid="51"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="52"><h3 id="list-messages">List Messages</h3>
+</div></div><div data-title="Messages" class="keyline-top section contain clearfix " data-reactid="54"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="55"><h2 id="messages">Messages</h2>
+</div></div><div data-title="List Messages" class="keyline-top section contain clearfix " data-reactid="56"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="57"><h3 id="list-messages">List Messages</h3>
 <p>To list messages for your account, use the following endpoints</p>
 <p>You can also add the <code>message_type</code> parameter to retrieve results.</p>
 <ul>
 <li><code>message_type=sent</code>: Fetches the sent messages.</li>
 <li><code>message_type=received</code>: Fetches the received messages.</li>
 </ul>
-</div><div class="space-bottom4 col6 pad2 prose clip fill-light space-top5" data-reactid="53"><div class='endpoint dark fill-dark round '>
+</div><div class="space-bottom4 col6 pad2 prose clip fill-light space-top5" data-reactid="58"><div class='endpoint dark fill-dark round '>
       <div class='round-left pad0y pad1x fill-lighten0 code small endpoint-method'>GET</div>
       <div class='pad0 code small endpoint-url'>/v1/accounts/:accountId/messages?message_type=sent</div>
     </div>
 <h4 id="response-json-1">Response JSON</h4>
 <pre class='hljs'></pre>
-</div></div><div data-title="Notes" class="keyline-top section contain clearfix " data-reactid="54"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="55"><h2 id="notes">Notes</h2>
+</div></div><div data-title="Notes" class="keyline-top section contain clearfix " data-reactid="59"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="60"><h2 id="notes">Notes</h2>
 <p>When implementing the API, here are a few points to keep in mind</p>
 <ul>
 <li>
@@ -464,9 +464,123 @@ GET /v1/​accounts/​​xxxx
 2016-10-04T12:00:00.000Z​
 </code></pre>
 <p>Where the last parameter is the same timestamp that your implementation is using.</p>
-</div></div></div></div></div><div class="fixed-top space-left16" data-reactid="56"><div class="events fill-light bottom-shadow pad1 col6 pin-topright  " data-reactid="57"><div class="space-right1 small quiet inline" data-reactid="58">Show examples in:</div><div class="rounded-toggle inline short" data-reactid="59"><a class="strong active" data-reactid="60">scala</a><a class="strong " data-reactid="61">c-sharp</a><a class="strong " data-reactid="62">ruby</a><a class="strong " data-reactid="63">bash</a></div><div class="fr pad0" data-reactid="64"><a title="Display as 1 column" style="cursor:pointer;" class="icon quiet caret-left pad0 fill-darken0 round" data-reactid="65"></a></div></div></div><div class="fill-dark dark bottom-shadow fixed-top pad0 width16" data-reactid="66"><a href="/" class="active space-top1 space-left1 pin-topleft icon round dark pad0 fill-red" data-reactid="67"></a><div class="strong small pad0
+</div></div><div data-title="Overview" class="keyline-top section contain clearfix " data-reactid="61"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="62"><h2 id="overview">Overview</h2>
+<p>This section deals with configuring Single Sign On for use with Signal Vine Messaging Platform</p>
+<p>SAML metadata is an XML document which contains information necessary for interaction
+with SAML-enabled identity or service providers. Typically one metadata document will be generated for our own service provider and sent to all identity providers we want to enable single sign-on with. Similarly, each identity provider will make it's own metadata available for us to import into our service provider application. </p>
+</div></div><div data-title="SP Metadata" class="keyline-top section contain clearfix " data-reactid="63"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="64"><h2 id="sp-metadata">SP Metadata</h2>
+<p>Signal Vine SP Metadata needs to be configured at the IDP end. It can be found at the
+following url: <code>https://v3.signalvine.com/saml/metadata</code>. </p>
+<p>The Service Provider metadata file contains the following definitions</p>
+<ul>
+<li>
+<p><code>entityId</code>: Specify the unique identity of the REST Web application
+(Service Provider).</p>
+</li>
+<li>
+<p><code>AuthnRequestsSigned</code>: Specify if the REST Web application (Service Provider) signs
+authentication requests.</p>
+</li>
+<li>
+<p><code>WantAssertionsSigned</code>: Specify if the REST Web application requires signed
+assertions.</p>
+</li>
+<li>
+<p><code>Certificate</code>: Specify the certificate that must be used by the IdP to
+register the Service Provider. This can either be a selfsigned
+or a Certificate Authority (CA) signed certificate. </p>
+</li>
+<li>
+<p><code>Binding</code>: Specify the bindings to be included in the metadata for the
+SSO profile. Supported values are POST, Artifact, and
+PAOS.
+Signal Vine supports POST binding only.</p>
+</li>
+</ul>
+</div><div class="space-bottom4 col6 pad2 prose clip fill-light space-top5" data-reactid="65"><h4 id="sample-service-provider-metadata-file">Sample Service Provider Metadata File</h4>
+<pre class='hljs'>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+<span class="hljs-tag">&lt;<span class="hljs-name">md:EntityDescriptor</span> <span class="hljs-attr">xmlns:md</span>=<span class="hljs-string">"urn:oasis:names:tc:SAML:2.0:metadata"</span> <span class="hljs-attr">entityID</span>=<span class="hljs-string">"SignalVine"</span>&gt;</span>
+   <span class="hljs-tag">&lt;<span class="hljs-name">md:SPSSODescriptor</span> <span class="hljs-attr">AuthnRequestsSigned</span>=<span class="hljs-string">"false"</span> <span class="hljs-attr">WantAssertionsSigned</span>=<span class="hljs-string">"false"</span> <span class="hljs-attr">protocolSupportEnumeration</span>=<span class="hljs-string">"urn:oasis:names:tc:SAML:2.0:protocol"</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">md:KeyDescriptor</span> <span class="hljs-attr">use</span>=<span class="hljs-string">"signing"</span>&gt;</span>
+         <span class="hljs-tag">&lt;<span class="hljs-name">ds:KeyInfo</span> <span class="hljs-attr">xmlns:ds</span>=<span class="hljs-string">"http://www.w3.org/2000/09/xmldsig#"</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">ds:X509Data</span>&gt;</span>
+               <span class="hljs-tag">&lt;<span class="hljs-name">ds:X509Certificate</span>&gt;</span>MIICYDCCAcmgAwIBAgIBADANBgkqhkiG9w0BAQ0FADBNMQswCQYDVQQGE
+wJ1czELMAkGA1UECAwCVkExFDASBgNVBAoMC1NpZ25hbCBWaW5lMRswGQYDVQQDDBJ3d3cuc2ln
+bmFsdmluZS5jb20wHhcNMTYxMjAyMDYyMzM4WhcNMjYxMTMwMDYyMzM4WjBNMQswCQYDVQQ
+GEwJ1czELMAkGA1UECAwCVkExFDASBgNVBAoMC1NpZ25hbCBWaW5lMRswGQYDVQQDDBJ3d3cuc
+2lnbmFsdmluZS5jb20wgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAMVPx2alTo1s1RoD00rsG15K
+WUla+VJD8nSbQ08hPvrqvKht7xXvTBotxiR59+pRTShggx/Zy/
+muKLPbGcwOSqtKlOxM918xm5PtXX7kun+bzIChzwis6ImQpusyZ4JM2hnn/
+h68nD9mdGvNhxibaVf+O8SWTG5QWVopgrrBp5jpAgMBAAGjUDBOMB0GA1UdDgQWBBTRF8d7zc7p
+LkACv3fl7ZbSS6p1ITAfBgNVHSMEGDAWgBTRF8d7zc7pLkACv3fl7ZbSS6p1ITAMBgNVHRMEBTADAQH
+/
+MA0GCSqGSIb3DQEBDQUAA4GBAGt5ehX5jspMS8uStNPphlPfzbO1bEGDlFbuwbYjUO8LLZTlWvUvpp
+CiHdvHy4kz8vBez1XMHH8yNGoqr+E/
+yz718Ky3bHpPHD9IdQd1Tp54AWBDR4lmkkH4CPc7bVHuUbhuFZIONRfjCVPGo/
+Avs0K9tr03e1h7t+Rykh4K2eQv<span class="hljs-tag">&lt;/<span class="hljs-name">ds:X509Certificate</span>&gt;</span>
+            <span class="hljs-tag">&lt;/<span class="hljs-name">ds:X509Data</span>&gt;</span>
+         <span class="hljs-tag">&lt;/<span class="hljs-name">ds:KeyInfo</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">md:KeyDescriptor</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">md:KeyDescriptor</span> <span class="hljs-attr">use</span>=<span class="hljs-string">"encryption"</span>&gt;</span>
+         <span class="hljs-tag">&lt;<span class="hljs-name">ds:KeyInfo</span> <span class="hljs-attr">xmlns:ds</span>=<span class="hljs-string">"http://www.w3.org/2000/09/xmldsig#"</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">ds:X509Data</span>&gt;</span>
+               <span class="hljs-tag">&lt;<span class="hljs-name">ds:X509Certificate</span>&gt;</span>MIICYDCCAcmgAwIBAgIBADANBgkqhkiG9w0BAQ0FADBNMQswCQYDVQQGE
+wJ1czELMAkGA1UECAwCVkExFDASBgNVBAoMC1NpZ25hbCBWaW5lMRswGQYDVQQDDBJ3d3cuc2ln
+bmFsdmluZS5jb20wHhcNMTYxMjAyMDYyMzM4WhcNMjYxMTMwMDYyMzM4WjBNMQswCQYDVQQ
+GEwJ1czELMAkGA1UECAwCVkExFDASBgNVBAoMC1NpZ25hbCBWaW5lMRswGQYDVQQDDBJ3d3cuc
+2lnbmFsdmluZS5jb20wgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAMVPx2alTo1s1RoD00rsG15K
+WUla+VJD8nSbQ08hPvrqvKht7xXvTBotxiR59+pRTShggx/Zy/
+muKLPbGcwOSqtKlOxM918xm5PtXX7kun+bzIChzwis6ImQpusyZ4JM2hnn/
+h68nD9mdGvNhxibaVf+O8SWTG5QWVopgrrBp5jpAgMBAAGjUDBOMB0GA1UdDgQWBBTRF8d7zc7p
+LkACv3fl7ZbSS6p1ITAfBgNVHSMEGDAWgBTRF8d7zc7pLkACv3fl7ZbSS6p1ITAMBgNVHRMEBTADAQH
+/
+MA0GCSqGSIb3DQEBDQUAA4GBAGt5ehX5jspMS8uStNPphlPfzbO1bEGDlFbuwbYjUO8LLZTlWvUvpp
+CiHdvHy4kz8vBez1XMHH8yNGoqr+E/
+yz718Ky3bHpPHD9IdQd1Tp54AWBDR4lmkkH4CPc7bVHuUbhuFZIONRfjCVPGo/
+Avs0K9tr03e1h7t+Rykh4K2eQv<span class="hljs-tag">&lt;/<span class="hljs-name">ds:X509Certificate</span>&gt;</span>
+            <span class="hljs-tag">&lt;/<span class="hljs-name">ds:X509Data</span>&gt;</span>
+         <span class="hljs-tag">&lt;/<span class="hljs-name">ds:KeyInfo</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">md:KeyDescriptor</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">md:SingleLogoutService</span> <span class="hljs-attr">Binding</span>=<span class="hljs-string">"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"</span> <span class="hljs-attr">Location</span>=<span class="hljs-string">"http://172.16.0.106:8080/auth/saml-callback"</span> /&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">md:NameIDFormat</span>&gt;</span>urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified<span class="hljs-tag">&lt;/<span class="hljs-name">md:NameIDFormat</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">md:AssertionConsumerService</span> <span class="hljs-attr">Binding</span>=<span class="hljs-string">"urn:oasis:names:tc:SAML:2.0:bindings:HTTPPOST"</span> <span class="hljs-attr">Location</span>=<span class="hljs-string">"http://172.16.0.106:8080/auth/saml-callback"</span> <span class="hljs-attr">index</span>=<span class="hljs-string">"1"</span> /&gt;</span>
+   <span class="hljs-tag">&lt;/<span class="hljs-name">md:SPSSODescriptor</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">md:EntityDescriptor</span>&gt;</span></pre>
+</div></div><div data-title="IDP Metadata" class="keyline-top section contain clearfix " data-reactid="66"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="67"><h2 id="idp-metadata">IDP Metadata</h2>
+<p>An Identity Provider (IdP), sometimes called an Identity Service Provider or Identity
+Assertion Provider, is an online service or website that authenticates users on the Internet
+by means of security tokens, one of which is SAML 2.0. Signal Vine needs
+the IDP SAML metadata that we get from the IdP that includes the issuer's name, expiration
+information, and keys that can be used to validate the SAML authentication response
+(assertions) that are received from the IdP. </p>
+</div></div><div data-title="IDP Metadata Mapping" class="keyline-top section contain clearfix " data-reactid="68"><div class="space-bottom8 col6 pad2x prose clip" data-reactid="69"><h2 id="idp-metadata-mapping">IDP Metadata Mapping</h2>
+<p>The SAML 2.0 assertion should include all the attributes we need for the user in the service
+provider (Signal Vine application). Exactly what is transported is a matter of negotiation
+between SV and the operator of the identity provider. The identity provider sends the
+attributes as attribute=value pairs. We need to know the name of the SAML 2.0 attribute
+and what kind of value it carries so we can map it to user attributes in SV application
+(already mapped) </p>
+</div><div class="space-bottom4 col6 pad2 prose clip fill-light space-top5" data-reactid="70"><h4 id="mapping-attributes-to-fetch-from-idp-saml-response">Mapping Attributes to fetch from IDP SAML Response</h4>
+<pre class='hljs'><span class="hljs-tag">&lt;<span class="hljs-name">saml:Attribute</span> <span class="hljs-attr">Name</span>=<span class="hljs-string">"uid"</span> <span class="hljs-attr">NameFormat</span>=<span class="hljs-string">"urn:oasis:names:tc:SAML:2.0:attrname-format:basic"</span>&gt;</span>
+ <span class="hljs-tag">&lt;<span class="hljs-name">saml:AttributeValue</span> <span class="hljs-attr">xsi:type</span>=<span class="hljs-string">"xs:string"</span>&gt;</span>test15@mailinator.com<span class="hljs-tag">&lt;/<span class="hljs-name">saml:AttributeValue</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">saml:Attribute</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">saml:Attribute</span> <span class="hljs-attr">Name</span>=<span class="hljs-string">"telephoneNumber"</span> <span class="hljs-attr">NameFormat</span>=<span class="hljs-string">"urn:oasis:names:tc:SAML:2.0:attrnameformat:basic"</span>&gt;</span>
+
+ <span class="hljs-tag">&lt;<span class="hljs-name">saml:AttributeValue</span> <span class="hljs-attr">xsi:type</span>=<span class="hljs-string">"xs:string"</span>&gt;</span>18014374321<span class="hljs-tag">&lt;/<span class="hljs-name">saml:AttributeValue</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">saml:Attribute</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">saml:Attribute</span> <span class="hljs-attr">Name</span>=<span class="hljs-string">"givenName"</span> <span class="hljs-attr">NameFormat</span>=<span class="hljs-string">"urn:oasis:names:tc:SAML:2.0:attrnameformat:basic"</span>&gt;</span>
+
+ <span class="hljs-tag">&lt;<span class="hljs-name">saml:AttributeValue</span> <span class="hljs-attr">xsi:type</span>=<span class="hljs-string">"xs:string"</span>&gt;</span>TUser99991<span class="hljs-tag">&lt;/<span class="hljs-name">saml:AttributeValue</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">saml:Attribute</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">saml:Attribute</span> <span class="hljs-attr">Name</span>=<span class="hljs-string">"sn"</span> <span class="hljs-attr">NameFormat</span>=<span class="hljs-string">"urn:oasis:names:tc:SAML:2.0:attrname-format:basic"</span>&gt;</span>
+ <span class="hljs-tag">&lt;<span class="hljs-name">saml:AttributeValue</span> <span class="hljs-attr">xsi:type</span>=<span class="hljs-string">"xs:string"</span>&gt;</span>Test88881<span class="hljs-tag">&lt;/<span class="hljs-name">saml:AttributeValue</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">saml:Attribute</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">saml:Attribute</span> <span class="hljs-attr">Name</span>=<span class="hljs-string">"mail"</span> <span class="hljs-attr">NameFormat</span>=<span class="hljs-string">"urn:oasis:names:tc:SAML:2.0:attrname-format:basic"</span>&gt;</span>
+ <span class="hljs-tag">&lt;<span class="hljs-name">saml:AttributeValue</span> <span class="hljs-attr">xsi:type</span>=<span class="hljs-string">"xs:string"</span>&gt;</span>test15@mailinator.com<span class="hljs-tag">&lt;/<span class="hljs-name">saml:AttributeValue</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">saml:Attribute</span>&gt;</span></pre>
+</div></div></div></div></div><div class="fixed-top space-left16" data-reactid="71"><div class="events fill-light bottom-shadow pad1 col6 pin-topright  " data-reactid="72"><div class="space-right1 small quiet inline" data-reactid="73">Show examples in:</div><div class="rounded-toggle inline short" data-reactid="74"><a class="strong active" data-reactid="75">scala</a><a class="strong " data-reactid="76">c-sharp</a><a class="strong " data-reactid="77">ruby</a><a class="strong " data-reactid="78">bash</a></div><div class="fr pad0" data-reactid="79"><a title="Display as 1 column" style="cursor:pointer;" class="icon quiet caret-left pad0 fill-darken0 round" data-reactid="80"></a></div></div></div><div class="fill-dark dark bottom-shadow fixed-top pad0 width16" data-reactid="81"><a href="/" class="active space-top1 space-left1 pin-topleft icon round dark pad0 fill-red" data-reactid="82"></a><div class="strong small pad0
           
-          space-left4 line-height15" data-reactid="68">Wobble API Documentation</div></div></div></div><!--STOP-->
+          space-left4 line-height15" data-reactid="83">Signal Vine API Documentation</div></div></div></div><!--STOP-->
     <script src='bundle.js'></script>
   </body>
 </html>
