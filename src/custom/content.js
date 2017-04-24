@@ -12,5 +12,7 @@ var fs = require('fs');
 module.exports =
   '# Introduction\n' +
   fs.readFileSync('./content/introduction.md', 'utf8') + '\n' +
-  '# Example\n' +
-  fs.readFileSync('./content/example.md', 'utf8') + '\n';
+  '# API\n' +
+  fs.readFileSync('./content/api.md', 'utf8') + '\n' + 
+  '# SSO\n' +
+  fs.readFileSync('./content/sso.md', 'utf8') + '\n';;
